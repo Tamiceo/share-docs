@@ -492,32 +492,88 @@ systemctl --user restart openclaw-gateway.service</code></pre></div>
     "token_rotation_enabled": false
   }
 }</code></pre></div>
-      <h3>② 토큰 2개 발급</h3>
+      <div class="box tip"><span class="bt">매니페스트 붙여넣기 주의 2가지</span><b>① 바꿀 곳은 2군데</b> — <code>"name"</code>과 <code>"display_name"</code>만 원하는 봇 이름으로. 나머지는 그대로. <b>② 주석 금지</b> — 슬랙 매니페스트는 순수 JSON만 받습니다(<code>//</code> 넣으면 에러).</div>
+      <h3>② 토큰 2개 발급 🙋</h3>
+      <p>매니페스트로 앱은 만들었지만 <b>토큰은 직접 발급</b>해야 해요. 두 종류가 필요하고, 둘 다 발급 즉시 <b>메모장에 복사·저장</b>하세요(특히 App Token은 한 번 닫으면 다시 못 봅니다 📋).</p>
       <table>
-        <tr><th>토큰</th><th>어디서</th><th>형식</th></tr>
-        <tr><td>Bot Token</td><td>OAuth &amp; Permissions → "Install to Workspace"</td><td><code>xoxb-...</code></td></tr>
-        <tr><td>App Token</td><td>Basic Information → App-Level Tokens → Generate (scope: <code>connections:write</code>)</td><td><code>xapp-...</code></td></tr>
+        <tr><th>토큰</th><th>발급 경로 (클릭 순서)</th><th>형식</th></tr>
+        <tr><td>App Token<br><span style="font-weight:400;color:var(--faint)">실시간 수신용</span></td><td>왼쪽 <b>Basic Information</b> → 아래로 스크롤 <b>App-Level Tokens</b> → <b>Generate Token and Scopes</b> → 이름 아무거나(봇 이름 추천) → scope <code>connections:write</code> <b>하나만</b> 추가 → <b>Generate</b></td><td><code>xapp-...</code></td></tr>
+        <tr><td>Bot Token<br><span style="font-weight:400;color:var(--faint)">메시지 권한</span></td><td>왼쪽 <b>Install App</b> → <b>Install to Workspace</b> → 권한 승인 <b>허용</b></td><td><code>xoxb-...</code></td></tr>
       </table>
+      <div class="box trap"><span class="bt">함정 — App Token은 한 번만 보임</span>scope는 반드시 <code>connections:write</code>(빠지면 Socket Mode가 안 돼 봇이 연결 안 됨). 그리고 발급된 <code>xapp-</code> 토큰은 창을 닫으면 다시 못 보니 <b>즉시 저장</b>하세요.</div>
       <h3>③ 오픈클로에 연결</h3>
       <div class="code"><div class="code-top"><div class="dots"><i></i><i></i><i></i></div><span class="where">VPS</span><button class="copy">복사</button></div>
 <pre><code>openclaw channels add --channel slack \
-  --bot-token xoxb-xxxxx \
-  --app-token xapp-xxxxx
+  --name "내 워크스페이스" \
+  --bot-token xoxb-여기에-봇토큰 \
+  --app-token xapp-여기에-앱토큰
 
-openclaw channels list   <span class="cmt"># slack default ✓ configured 확인</span></code></pre></div>
-      <div class="box trap"><span class="bt">함정 — App Token scope</span>App-Level Token 만들 때 scope를 <code>connections:write</code>로 줘야 Socket Mode가 작동합니다. 빠지면 봇이 연결 안 돼요.</div>
-      <div class="check"><span class="ic">✅</span><span><b>여기까지 됐으면:</b> 슬랙 채널에서 봇을 부르면(@봇이름) <b>디폴트 성격으로 답한다.</b> 봇이 살아났어요! 🎉 (성격은 09단계에서 입힘)</span></div>
+openclaw channels list   <span class="cmt"># slack ✓ configured 확인</span></code></pre></div>
+      <div class="box trap"><span class="bt">함정 — 토큰 끝 줄바꿈 = "조용한 실패"</span>복사 버튼이 토큰 뒤에 줄바꿈(<code>\n</code>)까지 같이 복사하면, <b>에러 메시지도 없이 봇이 무응답</b>합니다(가장 흔한 함정!). 토큰을 변수에 넣어 공백·줄바꿈을 제거하고 연결하면 안전해요:</div>
+      <div class="code"><div class="code-top"><div class="dots"><i></i><i></i><i></i></div><span class="where">VPS · 줄바꿈 안전 버전</span><button class="copy">복사</button></div>
+<pre><code>BOT="$(echo -n 'xoxb-...붙여넣기...' | tr -d '[:space:]')"
+APP="$(echo -n 'xapp-...붙여넣기...' | tr -d '[:space:]')"
+openclaw channels add --channel slack --name "내 워크스페이스" \
+  --bot-token "$BOT" --app-token "$APP"</code></pre></div>
+      <h3>④ 페어링 — 첫 대화 승인 <span style="color:var(--danger);font-size:.8rem">(이걸 빼먹으면 봇이 답을 안 해요!)</span></h3>
+      <p>오픈클로는 아무나 봇에게 DM 못 하게, 처음 한 번 <b>"이 사람이 진짜 주인인지"</b> 확인합니다. 한 번만 하면 이후엔 바로 응답해요.</p>
+      <ul class="clean">
+        <li><b>1)</b> 슬랙에서 봇에게 <b>DM 보내기</b> — "안녕!"이면 충분</li>
+        <li><b>2)</b> 봇이 <b>페어링 안내 메시지</b>를 보냄 (당황 금지! "주인한테 확인받고 와"라는 뜻):</li>
+      </ul>
+      <div class="code"><div class="code-top"><div class="dots"><i></i><i></i><i></i></div><span class="where">슬랙 — 봇이 보내는 메시지</span><button class="copy">복사</button></div>
+<pre><code>OpenClaw: access not configured.
+
+Your Slack user id: U0XXXXXXXXX
+Pairing code:
+
+ ABCD1234
+
+Ask the bot owner to approve with:
+openclaw pairing approve slack ABCD1234</code></pre></div>
+      <ul class="clean">
+        <li><b>3)</b> 봇이 알려준 명령을 <b>VPS 터미널에 그대로</b> 붙여넣어 승인 (<code>--notify</code> 붙이면 승인 후 봇이 슬랙으로 알려줌):</li>
+      </ul>
+      <div class="code"><div class="code-top"><div class="dots"><i></i><i></i><i></i></div><span class="where">VPS</span><button class="copy">복사</button></div>
+<pre><code>openclaw pairing approve slack ABCD1234 --notify</code></pre></div>
+      <ul class="clean">
+        <li><b>4)</b> 다시 슬랙에서 말 걸기 → <b>이번엔 답합니다!</b> 🎉</li>
+      </ul>
+      <div class="box trap"><span class="bt">페어링 코드는 1시간 후 만료</span>보이는 즉시 터미널에서 승인하세요. 만료되면 DM을 다시 보내 새 코드를 받으면 됩니다.</div>
+      <div class="box tip"><span class="bt">안 될 때</span>· 채널에서 쓰려면 봇 초대: 채널에 <code>/invite @봇이름</code> (DM은 초대 불필요) · 어디서 막히는지 보려면 <code>openclaw logs --follow</code> 켜고 DM을 다시 보내세요.</div>
+      <div class="check"><span class="ic">✅</span><span><b>여기까지 됐으면:</b> 페어링 승인 후 봇이 <b>디폴트 성격으로 답한다.</b> 봇이 살아났어요! 🎉 (성격은 09단계에서 입힘)</span></div>
     </section>
 
     <!-- 08 -->
     <section id="s8">
-      <div class="step-head"><div class="step-num">08</div><h2>봇 접근 제한 — 보안 2단계</h2></div>
+      <div class="step-head"><div class="step-num">08</div><h2>봇 접근 제한 &amp; 세부설정</h2></div>
       <div class="box trap"><span class="bt">슬랙 연결했으면 바로 잠그기</span>봇은 강한 권한으로 명령을 실행합니다. 아무나 슬랙으로 봇에게 위험한 명령을 시키면(프롬프트 인젝션) 서버가 털릴 수 있어요. 연결 직후 바로 제한하세요.</div>
       <ul class="clean">
         <li><code>channels.slack.allowFrom</code> 에 <b>내 슬랙 user ID만</b> 넣어 봇 호출을 본인으로 제한</li>
         <li><code>commands.ownerAllowFrom</code> 도 같이 설정</li>
       </ul>
-      <div class="check"><span class="ic">✅</span><span><b>여기까지 됐으면:</b> 나 외의 사람이 봇을 불러도 반응하지 않는다.</span></div>
+      <h3>주요 설정 옵션 (<code>~/.openclaw/openclaw.json</code>)</h3>
+      <table>
+        <tr><th>옵션</th><th>무엇</th><th>값</th></tr>
+        <tr><td><code>dmPolicy</code></td><td>DM 허용 범위</td><td><b>pairing</b>(주인만, 기본·권장) / <b>allowlist</b>(특정 ID들) / <b>open</b>(전원, <code>allowFrom:["*"]</code> 필요)</td></tr>
+        <tr><td><code>groupPolicy</code></td><td>채널 활성화</td><td><b>open</b>(초대된 모든 채널) / <b>allowlist</b>(지정 채널만)</td></tr>
+        <tr><td><code>replyToMode</code></td><td>답변 위치</td><td><b>all</b>(스레드로 답) 등</td></tr>
+        <tr><td><code>mentionPatterns</code></td><td>이름 호출</td><td>등록하면 <b>@멘션 없이 이름만</b> 불러도 반응 (예: <code>["뽀야","뽀야야"]</code>)</td></tr>
+      </table>
+      <div class="box tip"><span class="bt">토큰 비용 주의</span>특정 채널에서 <code>requireMention: false</code>(모든 메시지에 반응)로 두면 봇이 채널의 <b>모든 메시지를 읽어</b> 토큰 소모가 급증합니다. 꼭 필요한 채널에만.</div>
+      <h3>💬 JSON이 어렵다면 — 봇에게 시키기</h3>
+      <p>설정 파일을 직접 안 건드리고, 슬랙에서 봇에게 이 프롬프트를 보내 맡길 수 있어요.</p>
+      <div class="code"><div class="code-top"><div class="dots"><i></i><i></i><i></i></div><span class="where">슬랙에서 봇에게 보낼 프롬프트</span><button class="copy">복사</button></div>
+<pre><code>~/.openclaw/openclaw.json 의 내 슬랙 계정 설정을 이렇게 맞춰줘:
+- DM은 나만 받기 (dmPolicy: pairing, 또는 allowlist에 내 슬랙 ID)
+- 답변은 스레드에서 (replyToMode: all)
+- 내 이름 "(___)"으로 불러도 반응하게 (mentionPatterns에 추가)
+그리고 AGENTS.md에 "공개 채널에서 민감한 명령 실행 금지" 규칙도 추가해줘.
+
+끝나면 게이트웨이를 재시작하고,
+"재시작 끝났으니 슬랙 DM에서 저 다시 한번 불러주세요"라고 보고해줘.
+(재시작하면 네 슬랙 세션도 끊겨서 내가 먼저 말 걸어야 깨어나니까.)</code></pre></div>
+      <div class="check"><span class="ic">✅</span><span><b>여기까지 됐으면:</b> 나 외의 사람이 봇을 불러도 반응하지 않고, DM·채널·이름호출 규칙이 내 취향대로 설정됨.</span></div>
     </section>
 
     <!-- ===== PART 4 ===== -->

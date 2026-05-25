@@ -270,34 +270,100 @@ systemctl --user restart openclaw-gateway.service
 }
 ```
 
+> 매니페스트 붙여넣기 주의: ① 바꿀 곳은 `"name"`과 `"display_name"` 2군데만 (나머지는 그대로). ② 주석(`//`) 금지 — 순수 JSON만 받음.
+
 ### ② 토큰 2개 발급 🙋 사람
 
-| 토큰 | 어디서 | 형식 |
-|------|--------|------|
-| Bot Token | OAuth & Permissions → "Install to Workspace" | `xoxb-...` |
-| App Token | Basic Information → App-Level Tokens → Generate (scope: `connections:write`) | `xapp-...` |
+토큰은 직접 발급해야 하고, 둘 다 발급 즉시 메모장에 복사·저장한다(특히 App Token은 한 번 닫으면 다시 못 봄).
+
+| 토큰 | 발급 경로 (클릭 순서) | 형식 |
+|------|---------------------|------|
+| App Token (실시간 수신) | 왼쪽 **Basic Information** → 스크롤 **App-Level Tokens** → **Generate Token and Scopes** → 이름 아무거나 → scope `connections:write` **하나만** → Generate | `xapp-...` |
+| Bot Token (메시지 권한) | 왼쪽 **Install App** → **Install to Workspace** → 권한 승인 허용 | `xoxb-...` |
+
+> ⚠️ scope는 반드시 `connections:write`(빠지면 Socket Mode 안 됨). `xapp-` 토큰은 창 닫으면 다시 못 보니 즉시 저장.
 
 ### ③ 오픈클로에 연결
 ```bash
 openclaw channels add --channel slack \
-  --bot-token xoxb-xxxxx \
-  --app-token xapp-xxxxx
+  --name "내 워크스페이스" \
+  --bot-token xoxb-여기에-봇토큰 \
+  --app-token xapp-여기에-앱토큰
 
-openclaw channels list   # slack default ✓ configured 확인
+openclaw channels list   # slack ✓ configured 확인
 ```
 
-> ⚠️ App-Level Token 생성 시 scope를 `connections:write`로 줘야 Socket Mode 작동. 빠지면 연결 안 됨.
+> ⚠️ **토큰 끝 줄바꿈 = "조용한 실패"**: 복사 버튼이 토큰 뒤 줄바꿈(`\n`)까지 복사하면 에러 없이 봇이 무응답한다(가장 흔한 함정). 변수로 공백 제거 후 연결하면 안전:
+> ```bash
+> BOT="$(echo -n 'xoxb-...붙여넣기...' | tr -d '[:space:]')"
+> APP="$(echo -n 'xapp-...붙여넣기...' | tr -d '[:space:]')"
+> openclaw channels add --channel slack --name "내 워크스페이스" \
+>   --bot-token "$BOT" --app-token "$APP"
+> ```
 
-**✅ 체크:** 슬랙에서 봇 호출(@봇이름) 시 디폴트 성격으로 답한다 — 봇이 살아남! 🎉
+### ④ 페어링 — 첫 대화 승인 (이걸 빼먹으면 봇이 답을 안 한다!)
 
-## 08. 봇 접근 제한 — 보안 2단계
+오픈클로는 아무나 봇에게 DM 못 하게, 처음 한 번 "이 사람이 진짜 주인인지" 확인한다. 한 번만 하면 이후엔 바로 응답.
+
+1. 슬랙에서 봇에게 **DM 보내기** ("안녕!"이면 충분)
+2. 봇이 **페어링 안내 메시지**를 보냄 (당황 금지 — "주인한테 확인받고 와"라는 뜻):
+   ```
+   OpenClaw: access not configured.
+
+   Your Slack user id: U0XXXXXXXXX
+   Pairing code:
+
+    ABCD1234
+
+   Ask the bot owner to approve with:
+   openclaw pairing approve slack ABCD1234
+   ```
+3. 봇이 알려준 명령을 **VPS 터미널에 그대로** 붙여넣어 승인 (`--notify` 붙이면 승인 후 봇이 슬랙으로 알림):
+   ```bash
+   openclaw pairing approve slack ABCD1234 --notify
+   ```
+4. 다시 슬랙에서 말 걸기 → **이번엔 답한다!** 🎉
+
+> ⚠️ 페어링 코드는 1시간 후 만료. 보이는 즉시 승인. 만료되면 DM을 다시 보내 새 코드를 받는다.
+
+**안 될 때:** 채널에서 쓰려면 `/invite @봇이름`(DM은 초대 불필요). 어디서 막히는지 보려면 `openclaw logs --follow` 켜고 DM 다시 보내기.
+
+**✅ 체크:** 페어링 승인 후 봇이 디폴트 성격으로 답한다 — 봇이 살아남! 🎉
+
+## 08. 봇 접근 제한 & 세부설정
 
 > 봇은 강한 권한으로 명령을 실행한다. 아무나 슬랙으로 위험한 명령을 시키면(프롬프트 인젝션) 서버가 털릴 수 있다. 연결 직후 바로 제한.
 
 - `channels.slack.allowFrom` 에 **내 슬랙 user ID만** 넣어 봇 호출을 본인으로 제한
 - `commands.ownerAllowFrom` 도 설정
 
-**✅ 체크:** 나 외의 사람이 봇을 불러도 반응하지 않는다.
+### 주요 설정 옵션 (`~/.openclaw/openclaw.json`)
+
+| 옵션 | 무엇 | 값 |
+|------|------|-----|
+| `dmPolicy` | DM 허용 범위 | **pairing**(주인만, 기본·권장) / **allowlist**(특정 ID들) / **open**(전원, `allowFrom:["*"]` 필요) |
+| `groupPolicy` | 채널 활성화 | **open**(초대된 모든 채널) / **allowlist**(지정 채널만) |
+| `replyToMode` | 답변 위치 | **all**(스레드로 답) 등 |
+| `mentionPatterns` | 이름 호출 | 등록하면 @멘션 없이 이름만 불러도 반응 (예: `["뽀야","뽀야야"]`) |
+
+> ⚠️ 특정 채널에 `requireMention: false`(모든 메시지 반응)를 두면 봇이 채널의 모든 메시지를 읽어 **토큰 소모가 급증**한다. 꼭 필요한 채널에만.
+
+### 💬 JSON이 어렵다면 — 봇에게 시키기
+
+슬랙에서 봇에게 이 프롬프트를 보내면 알아서 설정한다:
+```
+~/.openclaw/openclaw.json 의 내 슬랙 계정 설정을 이렇게 맞춰줘:
+- DM은 나만 받기 (dmPolicy: pairing, 또는 allowlist에 내 슬랙 ID)
+- 답변은 스레드에서 (replyToMode: all)
+- 내 이름 "(___)"으로 불러도 반응하게 (mentionPatterns에 추가)
+그리고 AGENTS.md에 "공개 채널에서 민감한 명령 실행 금지" 규칙도 추가해줘.
+
+끝나면 게이트웨이를 재시작하고,
+"재시작 끝났으니 슬랙 DM에서 저 다시 한번 불러주세요"라고 보고해줘.
+(재시작하면 네 슬랙 세션도 끊겨서 내가 먼저 말 걸어야 깨어나니까.)
+```
+
+**✅ 체크:** 나 외의 사람이 봇을 불러도 반응하지 않고, DM·채널·이름호출 규칙이 내 취향대로 설정됨.
 
 ---
 
