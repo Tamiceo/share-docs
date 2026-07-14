@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>아이센스 × 마켓핏랩 · Mixpanel 온보딩 제안</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============ Mixpanel deck palette (from real deck reference) ============ */
+:root{
+  --bg:#191233;            /* deep near-black purple */
+  --bg-2:#1E1740;
+  --panel:#241C4D;         /* card / row surface */
+  --panel-2:#2B2258;
+  --band:#120C29;          /* table header band */
+  --ink:#EDEBF7;           /* primary light text */
+  --ink-dim:#C7C2E0;
+  --muted:#8B85A8;         /* labels, sub */
+  --muted-2:#6B6690;
+  --purple:#B8A6FF;        /* AGENT accent */
+  --purple-deep:#7856FF;
+  --teal:#4FD8C4;          /* MCP accent */
+  --teal-deep:#2FB8A6;
+  --coral:#FF8A6B;         /* HEADLESS accent */
+  --coral-deep:#FF6B47;
+  --hair:rgba(255,255,255,.09);
+  --hair-2:rgba(255,255,255,.05);
+  --grad-purple:linear-gradient(135deg,#8E6BFF 0%,#7856FF 100%);
+  --grad-teal:linear-gradient(135deg,#5FE0CE 0%,#2FB8A6 100%);
+  --grad-coral:linear-gradient(135deg,#FF9A7B 0%,#FF6B47 100%);
+  --grad-tri:linear-gradient(120deg,#B8A6FF 0%,#7856FF 40%,#4FD8C4 100%);
+  --sans:'Pretendard','Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --shadow:0 20px 60px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);background:#0B0817;color:var(--ink);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;letter-spacing:-.011em;
+  word-break:keep-all;overflow-wrap:break-word;
+}
+.deck{scroll-snap-type:y mandatory;height:100vh;overflow-y:scroll;scroll-behavior:smooth}
+
+.slide{
+  scroll-snap-align:start;position:relative;
+  width:100%;min-height:100vh;display:flex;align-items:center;
+  padding:0;background:var(--bg);overflow:hidden;
+}
+.slide__inner{width:100%;max-width:1280px;margin:0 auto;padding:70px 90px;position:relative;z-index:2}
+@media(max-width:860px){.slide__inner{padding:48px 30px}}
+
+/* subtle top texture */
+.slide::after{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(1100px 500px at 85% -10%,rgba(120,86,255,.16),transparent 60%),
+             radial-gradient(700px 420px at -5% 110%,rgba(79,216,196,.08),transparent 60%);
+}
+
+.snum{position:absolute;top:38px;right:54px;z-index:3;font:600 12px/1 'Inter',sans-serif;letter-spacing:.16em;color:var(--muted-2)}
+
+/* ============ Logo mark ============ */
+.mark{width:44px;height:44px;display:block}
+.mark path{fill:#fff}
+
+/* ============ Split layout (signature) ============ */
+.split{display:grid;grid-template-columns:0.86fr 1.14fr;min-height:100vh;align-items:center}
+.split .col-l{padding:70px 56px 70px 90px;border-right:1px solid var(--hair);position:relative;z-index:2;height:auto}
+.split .col-r{padding:70px 90px 70px 64px;position:relative;z-index:2}
+@media(max-width:960px){.split{grid-template-columns:1fr}.split .col-l{border-right:0;border-bottom:1px solid var(--hair);padding:56px 30px}.split .col-r{padding:44px 30px}}
+
+/* ============ Type ============ */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font:700 12px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);
+  padding:8px 15px;border-radius:8px;border:1px solid rgba(184,166,255,.38);background:rgba(184,166,255,.06);
+}
+.eyebrow.teal{color:var(--teal);border-color:rgba(79,216,196,.38);background:rgba(79,216,196,.06)}
+.eyebrow.coral{color:var(--coral);border-color:rgba(255,138,107,.38);background:rgba(255,138,107,.06)}
+
+.disp{font-size:66px;font-weight:800;line-height:1.0;letter-spacing:-.035em;color:#fff;margin-top:26px}
+h2.head{font-size:46px;font-weight:800;line-height:1.06;letter-spacing:-.03em;color:#fff}
+h3.head{font-size:30px;font-weight:800;line-height:1.14;letter-spacing:-.02em;color:#fff}
+.sub{font-size:19px;line-height:1.55;color:var(--muted);font-weight:500;margin-top:22px;max-width:520px}
+.lead{font-size:19px;line-height:1.55;color:var(--ink-dim);font-weight:500;max-width:680px}
+.kicker{font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.hl{color:var(--purple)}
+.hl-teal{color:var(--teal)}
+.hl-coral{color:var(--coral)}
+
+/* ============ Bullet list ============ */
+.blist{list-style:none;display:flex;flex-direction:column;gap:16px}
+.blist li{position:relative;padding-left:30px;font-size:19px;line-height:1.5;font-weight:500;color:var(--ink-dim)}
+.blist li::before{content:"";position:absolute;left:0;top:.5em;width:12px;height:12px;border-radius:4px;background:var(--grad-purple);box-shadow:0 0 12px rgba(120,86,255,.5)}
+.blist li b{font-weight:700;color:#fff}
+.blist.teal li::before{background:var(--grad-teal);box-shadow:0 0 12px rgba(79,216,196,.5)}
+.blist.coral li::before{background:var(--grad-coral);box-shadow:0 0 12px rgba(255,107,71,.5)}
+.blist--num{counter-reset:s}
+.blist--num li{padding-left:46px}
+.blist--num li::before{counter-increment:s;content:counter(s);width:28px;height:28px;border-radius:8px;top:-.05em;display:flex;align-items:center;justify-content:center;font:800 14px/1 'Inter',sans-serif;color:#fff}
+
+/* ============ Conclusion callout ============ */
+.concl{margin-top:28px;display:flex;gap:14px;align-items:flex-start;padding:20px 22px;border-radius:14px;background:var(--panel);border:1px solid var(--hair)}
+.concl::before{content:"→";flex:none;font:800 20px/1.2 'Inter',sans-serif;color:var(--purple)}
+.concl.coral::before{color:var(--coral)}
+.concl.teal::before{color:var(--teal)}
+.concl .tag{font:800 11px/1 'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);display:block;margin-bottom:5px}
+.concl.coral .tag{color:var(--coral)}
+.concl.teal .tag{color:var(--teal)}
+.concl p{font-size:18px;font-weight:700;line-height:1.45;color:#fff}
+
+/* ============ Grid / cards ============ */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--hair);border-radius:16px;padding:24px}
+.card h4{font-size:18px;font-weight:800;margin-bottom:8px;color:#fff;letter-spacing:-.02em}
+.card p{font-size:15px;line-height:1.5;color:var(--muted);font-weight:500}
+.card .ico{width:44px;height:44px;border-radius:12px;margin-bottom:15px;display:flex;align-items:center;justify-content:center;font-size:21px;background:rgba(120,86,255,.14)}
+.card.tealic .ico{background:rgba(79,216,196,.14)}
+.card.coralic .ico{background:rgba(255,138,107,.14)}
+.card.accent{border-color:rgba(184,166,255,.35);background:linear-gradient(160deg,rgba(120,86,255,.16),rgba(120,86,255,.04))}
+
+/* ============ Cover ============ */
+.cover .brand{font:700 13px/1 'Inter',sans-serif;letter-spacing:.34em;color:var(--purple);text-transform:uppercase;margin:20px 0 0}
+.cover .disp{font-size:88px}
+.chips{display:flex;gap:9px;align-items:center;margin-top:36px;flex-wrap:wrap}
+.chips .chip{font-size:13.5px;font-weight:700;color:#fff;padding:9px 15px;border-radius:100px;border:1px solid var(--hair);background:var(--panel)}
+.chips .chip.c1{border-color:rgba(184,166,255,.4)}
+.chips .chip.c2{border-color:rgba(139,133,168,.4)}
+.chips .chip.c3{border-color:rgba(79,216,196,.4)}
+.chips .chip.c4{border-color:rgba(255,138,107,.4)}
+.chips .arrow{color:var(--muted-2);font-weight:800}
+
+/* ============ Loop diagram (S7) ============ */
+.loop{position:relative;width:100%;max-width:452px;margin:6px auto 0;aspect-ratio:1}
+.loop__center{position:absolute;inset:33% 33%;border-radius:50%;background:var(--grad-purple);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 0 60px rgba(120,86,255,.5)}
+.loop__center b{font-size:19px;font-weight:800}
+.loop__center span{font-size:11.5px;opacity:.85;margin-top:2px}
+.node{position:absolute;width:148px;padding:15px 12px;border-radius:15px;background:var(--panel);border:1px solid var(--hair);text-align:center;box-shadow:var(--shadow)}
+.node .n-step{font:800 11px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.node .n-title{font-size:16px;font-weight:800;margin:4px 0 2px;color:#fff}
+.node .n-tool{font-size:12px;color:var(--muted);font-weight:600}
+.node.n1{top:-2%;left:50%;transform:translateX(-50%)}.node.n1 .n-step{color:var(--purple)}
+.node.n2{top:50%;right:-3%;transform:translateY(-50%)}.node.n2 .n-step{color:var(--teal)}
+.node.n3{bottom:-2%;left:50%;transform:translateX(-50%)}.node.n3 .n-step{color:var(--coral)}
+.node.n4{top:50%;left:-3%;transform:translateY(-50%)}.node.n4 .n-step{color:var(--purple)}
+
+/* ============ Hub & spoke (S8) ============ */
+.hub-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.hub-center{grid-column:2;grid-row:span 2;background:var(--grad-purple);border-radius:18px;padding:26px 20px;display:flex;flex-direction:column;justify-content:center;text-align:center;box-shadow:0 0 50px rgba(120,86,255,.4)}
+.hub-center b{font-size:22px;font-weight:800;color:#fff}
+.hub-center span{font-size:13px;color:rgba(255,255,255,.85);margin-top:6px;line-height:1.4}
+.spoke{background:var(--panel);border:1px solid var(--hair);border-radius:14px;padding:18px}
+.spoke .s-name{font-size:16px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
+.spoke .s-desc{font-size:13.5px;color:var(--muted);font-weight:500;margin-top:6px;line-height:1.45}
+.spoke .s-dot{width:9px;height:9px;border-radius:50%;background:var(--purple)}
+.spoke.teal .s-dot{background:var(--teal)}.spoke.coral .s-dot{background:var(--coral)}
+
+/* ============ Roadmap stairs (S13) ============ */
+.stairs{display:flex;align-items:flex-end;gap:20px;margin-top:30px}
+.stair{flex:1;border-radius:16px 16px 0 0;padding:22px 20px;position:relative;box-shadow:var(--shadow)}
+.stair.s1{background:linear-gradient(180deg,rgba(184,166,255,.28),rgba(184,166,255,.08));border:1px solid rgba(184,166,255,.3);min-height:250px}
+.stair.s2{background:linear-gradient(180deg,rgba(79,216,196,.26),rgba(79,216,196,.06));border:1px solid rgba(79,216,196,.3);min-height:300px}
+.stair.s3{background:linear-gradient(180deg,rgba(255,138,107,.26),rgba(255,138,107,.06));border:1px solid rgba(255,138,107,.3);min-height:350px}
+.stair .st-tag{font:800 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.stair.s1 .st-tag{color:var(--purple)}.stair.s2 .st-tag{color:var(--teal)}.stair.s3 .st-tag{color:var(--coral)}
+.stair .st-name{font-size:23px;font-weight:800;margin:6px 0 4px;color:#fff}
+.stair .st-desc{font-size:14px;line-height:1.45;font-weight:500;color:var(--ink-dim);margin-bottom:14px}
+.stair .st-when{font:800 10.5px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55);margin:16px 0 10px}
+.st-check{list-style:none;display:flex;flex-direction:column;gap:8px}
+.st-check li{position:relative;padding-left:22px;font-size:13px;line-height:1.4;font-weight:600;color:#fff}
+.st-check li::before{content:"✓";position:absolute;left:0;top:0;font-weight:800;font-size:12px}
+.stair.s1 .st-check li::before{color:var(--purple)}
+.stair.s2 .st-check li::before{color:var(--teal)}
+.stair.s3 .st-check li::before{color:var(--coral)}
+.stair .st-you{position:absolute;top:-32px;left:50%;transform:translateX(-50%);background:var(--teal);color:#0B0817;font:800 12px/1 'Inter',sans-serif;padding:7px 13px;border-radius:100px;white-space:nowrap;box-shadow:0 6px 18px rgba(79,216,196,.4)}
+.stair .st-you::after{content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--teal);border-bottom:0}
+
+/* ============ Version cards ============ */
+.vcards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.vcard{border-radius:18px;padding:26px 22px;position:relative;overflow:hidden;border:1px solid var(--hair);background:var(--panel)}
+.vcard .v-ver{font:800 13px/1 'Inter',sans-serif;letter-spacing:.05em}
+.vcard.p .v-ver{color:var(--purple)}.vcard.t .v-ver{color:var(--teal)}.vcard.c .v-ver{color:var(--coral)}
+.vcard .v-name{font-size:23px;font-weight:800;margin:8px 0 4px;color:#fff;letter-spacing:-.02em}
+.vcard .v-sub{font-size:14.5px;color:var(--muted);font-weight:600;line-height:1.4}
+.vcard .v-line{height:1px;background:var(--hair);margin:18px 0}
+.vcard .v-change{font-size:15px;font-weight:700;color:#fff;line-height:1.4}
+.vcard .v-change em{font-style:normal}
+.vcard.p .v-change em{color:var(--purple)}.vcard.t .v-change em{color:var(--teal)}.vcard.c .v-change em{color:var(--coral)}
+.vbadge{position:absolute;top:15px;right:15px;font:800 10.5px/1 'Inter',sans-serif;letter-spacing:.08em;padding:5px 9px;border-radius:100px;background:rgba(255,255,255,.08);color:var(--ink-dim)}
+.vcard.t{border-color:rgba(79,216,196,.4);background:linear-gradient(165deg,rgba(79,216,196,.14),rgba(79,216,196,.03));box-shadow:0 16px 44px rgba(0,0,0,.45)}
+
+/* ============ Comparison table (S15) — mirrors reference ============ */
+.ctable{width:100%;border-collapse:separate;border-spacing:0;margin-top:26px;font-size:15px;border:1px solid var(--hair);border-radius:14px;overflow:hidden}
+.ctable thead th{padding:18px 20px;text-align:left;background:var(--band);font:800 14px/1 'Inter',sans-serif;letter-spacing:.02em}
+.ctable thead th:first-child{background:var(--band)}
+.ctable thead th.h-p{color:var(--purple)}
+.ctable thead th.h-t{color:var(--teal)}
+.ctable thead th.h-c{color:var(--coral)}
+.ctable tbody th{padding:16px 20px;text-align:left;font:700 12.5px/1.3 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.015);vertical-align:top;white-space:nowrap}
+.ctable tbody td{padding:16px 20px;font-weight:500;color:var(--ink-dim);line-height:1.4;vertical-align:top}
+.ctable tbody tr:nth-child(even) td,.ctable tbody tr:nth-child(even) th{background:rgba(255,255,255,.028)}
+.ctable tbody tr:not(:last-child) th,.ctable tbody tr:not(:last-child) td{border-bottom:1px solid var(--hair-2)}
+.depth span{display:inline-block;padding:4px 11px;border-radius:100px;font:800 12px/1 'Inter',sans-serif}
+.dep-p{background:rgba(184,166,255,.16);color:var(--purple)}
+.dep-t{background:rgba(79,216,196,.16);color:var(--teal)}
+.dep-c{background:rgba(255,138,107,.16);color:var(--coral)}
+
+/* ============ Deliverable columns (S19) ============ */
+.deliv{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.dcol{background:var(--panel);border:1px solid var(--hair);border-radius:14px;overflow:hidden}
+.dcol .d-head{padding:15px 18px;font:800 17px/1 'Inter',sans-serif;color:#0B0817}
+.dcol.p .d-head{background:var(--grad-purple);color:#fff}
+.dcol.t .d-head{background:var(--grad-teal)}
+.dcol.c .d-head{background:var(--grad-coral);color:#fff}
+.dcol ul{list-style:none;padding:16px 18px;display:flex;flex-direction:column;gap:11px}
+.dcol li{font-size:14px;line-height:1.4;color:var(--ink-dim);font-weight:500;padding-left:18px;position:relative}
+.dcol li::before{content:"";position:absolute;left:0;top:.5em;width:7px;height:7px;border-radius:2px;background:var(--muted)}
+.dcol.p li::before{background:var(--purple)}.dcol.t li::before{background:var(--teal)}.dcol.c li::before{background:var(--coral)}
+.dcol li.plus{color:var(--muted);font-style:italic}
+.dcol li.plus::before{background:transparent;border:1.5px solid var(--muted-2)}
+
+/* ============ Stats (S20) ============ */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.stat{background:var(--panel);border:1px solid var(--hair);border-radius:16px;padding:24px}
+.stat .s-num{font:800 40px/1 'Inter',sans-serif;letter-spacing:-.03em;background:var(--grad-tri);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat .s-lab{font-size:14.5px;font-weight:600;color:var(--muted);margin-top:10px;line-height:1.4}
+
+/* ============ Closing (S22) ============ */
+.close{text-align:center;display:flex;flex-direction:column;align-items:center}
+.close .disp{font-size:64px}
+.close .en{font-size:21px;color:var(--teal);font-weight:600;letter-spacing:.04em;margin-top:14px}
+.close .contact{margin-top:40px;font-size:16px;color:var(--muted);font-weight:500;line-height:1.9}
+.close .contact b{color:#fff;font-weight:700}
+.close .foot{margin-top:34px;font:500 12.5px/1 'Inter',sans-serif;color:var(--muted-2);letter-spacing:.02em}
+
+/* ============ Nav ============ */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--grad-tri);z-index:50;width:0;transition:width .2s}
+.navhint{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:50;font-size:12px;font-weight:600;color:var(--muted);background:rgba(25,18,51,.85);backdrop-filter:blur(8px);padding:8px 16px;border-radius:100px;border:1px solid var(--hair);display:flex;gap:8px;align-items:center;transition:opacity .4s}
+.navhint kbd{font:700 11px/1 'Inter',sans-serif;background:var(--panel);border:1px solid var(--hair);border-radius:5px;padding:3px 6px;color:var(--ink-dim)}
+.navhint.hide{opacity:0;pointer-events:none}
+/* ============ Motion · staggered enter (make-interfaces) ============ */
+.snum{font-variant-numeric:tabular-nums}
+h1.disp,h2.head,h3.head,.ch-title,.close .disp{text-wrap:balance}
+.sub,.lead,.card p,.ch-thesis{text-wrap:pretty}
+.stat .s-num{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:no-preference){
+  .slide .col-l>*,.slide .col-r>*,.slide .slide__inner>*{opacity:0;transform:translateY(20px)}
+  .slide.in .col-l>*,.slide.in .col-r>*,.slide.in .slide__inner>*{animation:riseIn .74s cubic-bezier(.2,.75,.25,1) both}
+  .slide.in .col-l>*:nth-child(1),.slide.in .col-r>*:nth-child(1),.slide.in .slide__inner>*:nth-child(1){animation-delay:.04s}
+  .slide.in .col-l>*:nth-child(2),.slide.in .col-r>*:nth-child(2),.slide.in .slide__inner>*:nth-child(2){animation-delay:.12s}
+  .slide.in .col-l>*:nth-child(3),.slide.in .col-r>*:nth-child(3),.slide.in .slide__inner>*:nth-child(3){animation-delay:.20s}
+  .slide.in .col-l>*:nth-child(4),.slide.in .col-r>*:nth-child(4),.slide.in .slide__inner>*:nth-child(4){animation-delay:.28s}
+  .slide.in .col-l>*:nth-child(5),.slide.in .col-r>*:nth-child(5),.slide.in .slide__inner>*:nth-child(5){animation-delay:.36s}
+  .slide.in .col-l>*:nth-child(6),.slide.in .col-r>*:nth-child(6),.slide.in .slide__inner>*:nth-child(6){animation-delay:.44s}
+  .slide.in .col-l>*:nth-child(n+7),.slide.in .col-r>*:nth-child(n+7),.slide.in .slide__inner>*:nth-child(n+7){animation-delay:.52s}
+}
+@keyframes riseIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* ============ Chapter dividers · narrative arc (기승전결) ============ */
+.chapter{align-items:center}
+.chapter .slide__inner{max-width:1180px}
+.ch-bg{position:absolute;z-index:0;right:4%;top:50%;transform:translateY(-50%);font:900 44vh/.76 'Inter',sans-serif;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.06);pointer-events:none;user-select:none}
+.ch-idx{display:inline-flex;align-items:center;gap:12px;font:800 13px/1 'Inter',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.ch-idx::before{content:"";width:36px;height:2px;border-radius:2px;background:currentColor}
+.ch-title{font-size:74px;font-weight:800;line-height:1.0;letter-spacing:-.035em;color:#fff;margin-top:22px}
+.ch-thesis{font-size:20px;line-height:1.5;color:var(--ink-dim);font-weight:500;margin-top:24px;max-width:600px}
+.ch-steps{display:flex;gap:9px;margin-top:40px;flex-wrap:wrap}
+.ch-steps span{font:700 12.5px/1 'Inter',sans-serif;letter-spacing:.03em;color:var(--muted-2);padding:9px 15px;border:1px solid var(--hair);border-radius:100px}
+.ch-steps span.on{color:#fff;border-color:transparent}
+.ch-why .ch-idx,.ch-why .ch-title span{color:var(--purple)}
+.ch-why .ch-steps span.on{background:var(--grad-purple)}
+.ch-why .ch-bg{-webkit-text-stroke-color:rgba(184,166,255,.10)}
+.ch-what .ch-idx,.ch-what .ch-title span{color:var(--teal)}
+.ch-what .ch-steps span.on{background:var(--grad-teal);color:#0B0817}
+.ch-what .ch-bg{-webkit-text-stroke-color:rgba(79,216,196,.10)}
+.ch-how .ch-idx,.ch-how .ch-title span{color:var(--purple)}
+.ch-how .ch-steps span.on{background:var(--grad-purple)}
+.ch-how .ch-bg{-webkit-text-stroke-color:rgba(184,166,255,.10)}
+.ch-offer .ch-idx,.ch-offer .ch-title span{color:var(--coral)}
+.ch-offer .ch-steps span.on{background:var(--grad-coral)}
+.ch-offer .ch-bg{-webkit-text-stroke-color:rgba(255,138,107,.10)}
+
+/* ============ Aurora (cover + finale) ============ */
+.aurora{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.aurora::before,.aurora::after{content:"";position:absolute;border-radius:50%;filter:blur(75px)}
+.aurora::before{width:62vw;height:62vw;background:radial-gradient(circle,rgba(120,86,255,.85),transparent 62%);top:-22%;right:-10%;opacity:.55;animation:drift1 20s ease-in-out infinite}
+.aurora::after{width:46vw;height:46vw;background:radial-gradient(circle,rgba(47,184,166,.7),transparent 62%);bottom:-20%;left:-8%;opacity:.32;animation:drift2 26s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-6%,7%) scale(1.08)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(8%,-6%) scale(1.1)}}
+.g-sweep{background:var(--grad-tri);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;background-size:220% 100%;animation:sweep 7s linear infinite}
+@keyframes sweep{to{background-position:220% 0}}
+@media (prefers-reduced-motion:reduce){.aurora::before,.aurora::after,.g-sweep{animation:none}.g-sweep{background-position:0 0}}
+
+/* ============ Real 16:9 slide sizing (fit-to-viewport) ============ */
+:root{--scale:1}
+body,.deck{background:#0B0817}
+.slide{width:100vw;height:100vh;min-height:100vh;padding:0!important;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0B0817}
+.slide::after{display:none}
+.slide>.split,.slide>.slide__inner{
+  flex:none;width:1280px;height:720px;max-width:none;margin:0;
+  transform:scale(var(--scale));transform-origin:center center;
+  background:var(--bg);position:relative;overflow:hidden;border-radius:8px;
+  box-shadow:0 40px 120px rgba(0,0,0,.55);
+}
+.slide>.slide__inner{padding:52px 74px;display:flex;flex-direction:column;justify-content:center}
+.slide>.split{min-height:0;align-items:stretch}
+.slide>.split>.col-l{display:flex;flex-direction:column;justify-content:center;padding:52px 50px;height:auto}
+.slide>.split>.col-r{display:flex;flex-direction:column;justify-content:center;padding:46px 58px;height:auto}
+.slide>.split::before,.slide>.slide__inner::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(900px 460px at 85% -12%,rgba(120,86,255,.15),transparent 60%),radial-gradient(620px 380px at -6% 112%,rgba(79,216,196,.07),transparent 60%);
+}
+.snum,.aurora,.ch-logo{opacity:1!important;transform:none!important;animation:none!important}
+.snum{bottom:28px;right:42px;top:auto}
+.slide>.split>.aurora,.slide__inner>.aurora{position:absolute;inset:0}
+
+/* ============ Chapter dividers · bold color panels (distinct from body) ============ */
+.chapter>.slide__inner::before{display:none}
+.ch-why>.slide__inner{background:linear-gradient(135deg,#7856FF 0%,#4A2FB0 52%,#241452 100%)}
+.ch-what>.slide__inner{background:linear-gradient(135deg,#33C3B0 0%,#1E7A6E 52%,#123531 100%)}
+.ch-how>.slide__inner{background:linear-gradient(135deg,#9070FF 0%,#5E3AFF 50%,#2A1A6E 100%)}
+.ch-offer>.slide__inner{background:linear-gradient(135deg,#FF8A6B 0%,#D8583C 52%,#5E2418 100%)}
+.chapter .ch-idx{color:rgba(255,255,255,.9)}
+.chapter .ch-title,.chapter .ch-title span{color:#fff}
+.chapter .ch-thesis{color:rgba(255,255,255,.82)}
+.chapter .ch-steps span{border-color:rgba(255,255,255,.32);color:rgba(255,255,255,.62);background:transparent}
+.chapter .ch-steps span.on{background:#fff!important;color:#191233!important;border-color:transparent}
+.chapter .ch-bg{-webkit-text-stroke-color:rgba(255,255,255,.16)!important;color:transparent!important;right:5%}
+
+/* ============ Impact / pitch scale archetypes ============ */
+.statement>.slide__inner{justify-content:center}
+.mega{font-size:96px;font-weight:800;line-height:1.02;letter-spacing:-.04em;color:#fff;text-wrap:balance}
+.mega .accent{color:var(--purple)}
+.mega .accent.t{color:var(--teal)} .mega .accent.c{color:var(--coral)}
+.mega-sub{font-size:21px;line-height:1.55;color:var(--muted);font-weight:500;margin-top:30px;max-width:660px;text-wrap:pretty}
+.mega-sub b{color:var(--ink);font-weight:700}
+.bignum{font:800 128px/.88 'Inter',sans-serif;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:14px}
+.big3 .n{font-size:72px;font-weight:800;line-height:.95;letter-spacing:-.035em}
+.big3 p{font-size:15.5px;line-height:1.45;color:var(--muted);font-weight:500;margin-top:16px;padding-top:16px;border-top:1px solid var(--hair)}
+.big-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:6px}
+.big-stats .bs-n{font:800 66px/.9 'Inter',sans-serif;letter-spacing:-.04em;background:var(--grad-tri);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-variant-numeric:tabular-nums}
+.big-stats .bs-l{font-size:15px;font-weight:600;color:var(--muted);margin-top:14px;line-height:1.4}
+
+/* ============ Editorial de-slop · unify body with chapter tone ============ */
+/* labels: short rule + text (kill pill) */
+.eyebrow,.eyebrow.teal,.eyebrow.coral{border:0!important;background:transparent!important;padding:0!important;border-radius:0}
+.eyebrow{font-weight:800;font-size:12.5px;letter-spacing:.2em;gap:13px}
+.eyebrow::before{content:"";width:30px;height:2px;background:currentColor;border-radius:2px;flex:none}
+.eyebrow .dot{display:none}
+.chapter .eyebrow::before{display:none}
+/* kill emoji icons */
+.ico{display:none!important}
+/* flat editorial columns: top colour rule, no box, no fill */
+.card{background:transparent!important;border:0;border-top:2px solid var(--purple);border-radius:0!important;padding:20px 0 0;box-shadow:none!important;transform:none!important}
+.card.tealic{border-top-color:var(--teal)}
+.card.coralic{border-top-color:var(--coral)}
+.card.accent{border-top-color:var(--purple)}
+.card h4{margin-bottom:9px}
+/* callouts: left colour rule instead of a box */
+.concl{background:transparent!important;border:0;border-left:3px solid var(--purple);border-radius:0;padding:3px 0 3px 22px;margin-top:26px;gap:0}
+.concl::before{display:none}
+.concl.coral{border-left-color:var(--coral)}
+.concl.teal{border-left-color:var(--teal)}
+
+/* ============ Cover · minimal cinematic (title-led, not an overview) ============ */
+.cover-slide>.slide__inner{background:radial-gradient(1200px 700px at 20% 30%,#241a52 0%,#191233 55%,#120c26 100%)}
+.cover-slide>.slide__inner::before{display:none}
+.slide__inner.cover{align-items:flex-start;justify-content:center;padding:0 96px;position:relative}
+.cover .mark{position:absolute;top:58px;left:96px;width:44px;height:44px}
+.cover .brand{margin:0 0 28px;letter-spacing:.36em;color:var(--purple-soft)}
+.cover .disp{font-size:112px;line-height:.95;letter-spacing:-.04em}
+.cover .sub{font-size:22px;max-width:560px;margin-top:34px;line-height:1.5;color:var(--muted)}
+.cover-meta{position:absolute;left:96px;bottom:54px;display:flex;gap:12px;font:600 13px/1 'Inter',sans-serif;letter-spacing:.03em;color:var(--muted)}
+.cover-meta span{padding:10px 16px;border:1px solid var(--hair);border-radius:100px}
+
+/* ============ Loop diagram · SVG cycle (S7) ============ */
+.loopwrap{width:100%;max-width:460px;margin:2px auto 0}
+.loopsvg{width:100%;height:auto;display:block;overflow:visible}
+.loopsvg text{font-family:var(--sans)}
+.loopsvg .l-k{font-size:14px;font-weight:700}
+.loopsvg .l-e{font-size:18px;font-weight:800;fill:#fff}
+.loopsvg .l-t{font-size:13px;font-weight:600;fill:var(--muted)}
+.loopsvg .h-t{font-size:19px;font-weight:800;fill:#fff;letter-spacing:-.01em}
+.loopsvg .h-s{font-size:12px;font-weight:500;fill:rgba(255,255,255,.82)}
+
+/* ============ Vertical rhythm · fill 16:9 on thin card slides ============ */
+.slide .grid.g3{gap:24px;margin-top:40px}
+.slide .grid.g3>.card{min-height:198px;display:flex;flex-direction:column;padding-top:24px}
+.slide .grid.g3>.card>h4+p{margin-top:4px}
+.slide .grid.g3>.card>.blist{margin-top:22px;gap:14px}
+.slide .grid.g3>.card>p{font-size:15.5px;line-height:1.6}
+/* 4-step definition grid (S5) */
+.slide .grid.g4{grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}
+.slide .grid.g4>.card{min-height:176px;padding-top:22px;display:flex;flex-direction:column}
+.slide .grid.g4>.card>h4{font-size:16.5px}
+.slide .grid.g4>.card>p{font-size:14.5px;line-height:1.55;margin-top:14px}
+.st-badge{font:800 13px/1 'Inter',sans-serif;letter-spacing:.08em;color:var(--purple);margin-bottom:10px}
+.card.tealic .st-badge{color:var(--teal)}
+.card.coralic .st-badge{color:var(--coral)}
+/* WHAT · concrete walkthrough (flow) */
+.ex-situation{margin-top:22px;display:flex;align-items:center;gap:13px;font-size:17px;font-weight:500;color:var(--ink-dim)}
+.ex-situation b{color:#fff;font-weight:700}
+.ex-tag{flex:none;font:800 10.5px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--coral);border:1px solid rgba(255,138,107,.4);padding:6px 10px;border-radius:100px}
+.flow4{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:32px}
+.flow4 .fstep{position:relative;border-top:2px solid var(--purple);padding:20px 0 0}
+.flow4 .fstep.t{border-top-color:var(--teal)}
+.flow4 .fstep.c{border-top-color:var(--coral)}
+.flow4 .fstep:not(:first-child)::before{content:"→";position:absolute;left:-16px;top:24px;transform:translateX(-50%);color:var(--muted-2);font:800 17px/1 'Inter',sans-serif}
+.flow4 .st-badge{margin-bottom:9px}
+.flow4 .fstep.t .st-badge{color:var(--teal)}
+.flow4 .fstep.c .st-badge{color:var(--coral)}
+.flow4 h4{font-size:16px;font-weight:800;color:#fff;margin-bottom:10px;letter-spacing:-.01em}
+.flow4 .fstep .st-check li::before{color:var(--purple)}
+.flow4 .fstep.t .st-check li::before{color:var(--teal)}
+.flow4 .fstep.c .st-check li::before{color:var(--coral)}
+.flow4 .st-check li{color:var(--ink-dim)}
+/* 한국어 조판 · 의미 단위가 갈리지 않도록 */
+.nb{white-space:nowrap}
+.flow4 p{font-size:14px;line-height:1.55;color:var(--muted)}
+/* AI feature grid (S9) — what it does · who uses */
+.featgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 28px;margin-top:32px}
+.featgrid .fcard{border-top:2px solid var(--purple);padding:16px 0 0}
+.featgrid .fcard.t{border-top-color:var(--teal)}
+.featgrid .fcard.c{border-top-color:var(--coral)}
+.featgrid h4{font-size:16px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+.featgrid p{font-size:13.5px;line-height:1.52;color:var(--muted)}
+.featgrid .fu{margin-top:10px;font:700 11px/1 'Inter',sans-serif;letter-spacing:.06em;color:var(--muted-2);text-transform:uppercase}
+.featgrid .fcard.t .fu::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);margin-right:7px;vertical-align:middle}
+.featgrid .fcard.c .fu::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--coral);margin-right:7px;vertical-align:middle}
+.featgrid .fcard .fu::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--purple);margin-right:7px;vertical-align:middle}
+/* ============ Logos (Mixpanel = product/partner) ============ */
+.cover-powered{position:absolute;right:96px;bottom:50px;display:flex;flex-direction:column;align-items:flex-end;gap:9px;z-index:3}
+.cover-powered .pw-label{font:700 10px/1 'Inter',sans-serif;letter-spacing:.22em;color:var(--muted-2)}
+.cover-powered img{height:24px;width:auto;display:block}
+.close-partner{margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:9px}
+.close-partner .pw-label{font:700 10px/1 'Inter',sans-serif;letter-spacing:.22em;color:var(--muted-2)}
+.close-partner img{height:22px;width:auto}
+.hub-logo{height:26px;width:auto;margin:0 auto 9px;display:block;filter:brightness(0) invert(1);opacity:.95}
+.cover-logo{height:74px;width:auto;display:block;margin-bottom:30px}
+.close-logo{height:70px;width:auto;margin-bottom:6px}
+.ch-logo{position:absolute;top:48px;right:60px;height:42px;width:auto;opacity:.9;z-index:4}
+/* program detail step list (S16/17/18) */
+.steplist{list-style:none;display:flex;flex-direction:column;margin-top:18px}
+.steplist li{position:relative;padding:0 0 20px 48px}
+.feat-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.feat-tags span{font:700 11px/1.3 'Inter',sans-serif;padding:5px 9px;border-radius:100px;border:1px solid rgba(184,166,255,.32);color:var(--purple);background:rgba(184,166,255,.05)}
+.steplist.t .feat-tags span{border-color:rgba(79,216,196,.32);color:var(--teal);background:rgba(79,216,196,.05)}
+.steplist.c .feat-tags span{border-color:rgba(255,138,107,.32);color:var(--coral);background:rgba(255,138,107,.05)}
+.feat-tags .fx{color:var(--muted-2);border-color:var(--hair);background:transparent}
+.steplist li:last-child{padding-bottom:0}
+.steplist li::after{content:"";position:absolute;left:14px;top:32px;bottom:0;width:2px;background:var(--hair)}
+.steplist li:last-child::after{display:none}
+.steplist .sn{position:absolute;left:0;top:1px;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--purple);color:var(--purple);display:flex;align-items:center;justify-content:center;font:800 12px/1 'Inter',sans-serif;background:var(--bg);z-index:1}
+.steplist.t .sn{border-color:var(--teal);color:var(--teal)}
+.steplist.t li::after{background:rgba(79,216,196,.25)}
+.steplist.c .sn{border-color:var(--coral);color:var(--coral)}
+.steplist.c li::after{background:rgba(255,138,107,.25)}
+.steplist li::after{background:rgba(184,166,255,.25)}
+.steplist b{font-size:16px;font-weight:800;color:#fff;display:block;margin-bottom:3px;letter-spacing:-.01em;padding-top:5px}
+.steplist p{font-size:13.5px;line-height:1.5;color:var(--muted)}
+/* Mixpanel AI · four ways (S9, per Mixpanel 원안) */
+.aiways{margin-top:28px;gap:20px}
+.aiways>.card{padding-top:22px}
+.subagents{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
+.subagents span{font:700 12px/1 'Inter',sans-serif;color:var(--teal);border:1px solid rgba(79,216,196,.35);padding:6px 10px;border-radius:100px}
+.subagents .more{color:var(--muted-2);border-color:var(--hair)}
+.v-pre{display:block;font-size:13.5px;color:var(--muted);font-weight:700;margin-bottom:2px;letter-spacing:0}
+/* OS environment · 3-layer stack (S8) */
+.oslayers{display:flex;flex-direction:column;gap:14px;margin-top:32px}
+.oslayer{display:grid;grid-template-columns:230px 1fr;gap:28px;align-items:center;padding:22px 30px;border-radius:16px;border:1px solid var(--hair);background:var(--panel);position:relative;overflow:hidden}
+.oslayer::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.oslayer.p::before{background:var(--purple)}.oslayer.t::before{background:var(--teal)}.oslayer.c::before{background:var(--coral)}
+.ol-tag{font:800 17px/1.25 'Inter',sans-serif;letter-spacing:-.01em}
+.oslayer.p .ol-tag{color:var(--purple)}.oslayer.t .ol-tag{color:var(--teal)}.oslayer.c .ol-tag{color:var(--coral)}
+.ol-sub{font:700 11.5px/1 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);margin-top:5px}
+.ol-body b{font-size:17px;font-weight:800;color:#fff;display:block;margin-bottom:5px;letter-spacing:-.01em}
+.ol-body span{font-size:14px;color:var(--muted);font-weight:500}
+.ol-badge{position:absolute;right:26px;top:50%;transform:translateY(-50%);font:700 11px/1 'Inter',sans-serif;letter-spacing:.08em;color:var(--muted-2)}
+.slide .grid.g3>.card>.kicker{margin-bottom:2px}
+/* hub & spoke breathe */
+.hub-wrap{gap:22px}
+.spoke{min-height:122px;display:flex;flex-direction:column;justify-content:center;padding:24px 22px}
+.hub-center{padding:48px 24px}
+/* deliverable columns taller */
+.deliv{margin-top:34px}
+.dcol ul{padding:20px 20px 24px;gap:14px}
+
+@media print{
+  .navhint,.progress,.aurora{display:none}
+  .slide{page-break-after:always;height:auto}
+  .slide>.split,.slide>.slide__inner{transform:none;box-shadow:none}
+  .slide .col-l>*,.slide .col-r>*,.slide .slide__inner>*{opacity:1!important;transform:none!important;animation:none!important}
+}
+</style>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- ============ S1 · COVER ============ -->
+<section class="slide cover-slide" style="padding:0">
+  <div class="slide__inner cover">
+    <div class="aurora"></div>
+    <div class="cover-body">
+      <img src="assets/mfl-logo.png" class="cover-logo" alt="Market Fit Lab">
+      <h1 class="disp">온보딩<br><span class="g-sweep">프로그램</span> 안내</h1>
+      <p class="sub">보는 조직에서 <b style="color:#fff">묻는 조직</b>으로.<br>아이센스가 Mixpanel을 직접 제어하는 상태까지 함께 갑니다.</p>
+    </div>
+    <div class="cover-meta">
+      <span>아이센스 × 마켓핏랩</span>
+      <span>Enterprise 도입 제안 · 2026.07</span>
+    </div>
+    <div class="cover-powered"><span class="pw-label">POWERED BY</span><img src="assets/mixpanel-wordmark.png" alt="Mixpanel"></div>
+  </div>
+</section>
+
+<!-- ============ ACT 01 · 조건 ============ -->
+<section class="slide chapter ch-why">
+  <div class="ch-bg">01</div>
+  <div class="slide__inner">
+    <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
+    <span class="ch-idx">ACT 01 · 조건</span>
+    <h2 class="ch-title">표준 온보딩으로는<br><span>안 되는 이유</span></h2>
+    <p class="ch-thesis">아이센스에는 표준 프로그램이 전제하지 않는 조건이 셋 있습니다. 제안의 모든 것이 여기서 나옵니다.</p>
+    <div class="ch-steps"><span class="on">조건</span><span>MIXPANEL</span><span>온보딩</span><span>제안</span></div>
+  </div>
+</section>
+
+<!-- ============ S3 · 선언 ============ -->
+<section class="slide statement" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow">조건 ① · 온보딩의 정의</span>
+    <h2 class="mega" style="margin-top:24px">온보딩은 교육이 아니라,<br><span class="accent">셋업입니다.</span></h2>
+    <p class="mega-sub">교육은 <b>끝나면 기억만 남습니다.</b> 우리는 아이센스의 실제 데이터 위에 <b>택소노미·구현 가이드·QA·AI 셋업</b>을 얹어, 온보딩이 끝난 뒤에도 <b>계속 쓰이는 물건</b>을 남깁니다.</p>
+  </div>
+</section>
+
+<!-- ============ S4 · 3가지 조건 ============ -->
+<section class="slide" style="padding:0">
+  <div class="split">
+    <div class="col-l">
+      <span class="eyebrow">조건 ②</span>
+      <h2 class="head" style="margin-top:24px">아이센스에만<br>있는 <span class="hl">세 가지 조건</span></h2>
+      <p class="sub">표준 온보딩은 <b style="color:var(--ink)">앱 1개, 백지 상태, 일반 데이터</b>를 전제합니다. 아이센스는 셋 다 다릅니다.</p>
+    </div>
+    <div class="col-r">
+      <div class="grid g3" style="gap:22px;margin-top:0">
+        <div class="card">
+          <span class="st-badge">조건 01</span>
+          <h4 style="font-size:17px">앱이 2개다</h4>
+          <p style="font-size:14px;line-height:1.55"><span class="nb">신규 앱과 기존 운영 앱.</span><br><span class="nb">도입 가이드와 QA를</span><br><b style="color:#fff" class="nb">앱별로 두 벌</b> 돌립니다.</p>
+        </div>
+        <div class="card tealic">
+          <span class="st-badge">조건 02</span>
+          <h4 style="font-size:17px">데이터가 이미 있다</h4>
+          <p style="font-size:14px;line-height:1.55">신규 앱은 택소노미 설계 완료,<br>기존 앱은 설계 자체가 없음.<br><b style="color:#fff">백지가 아닙니다.</b></p>
+        </div>
+        <div class="card coralic">
+          <span class="st-badge">조건 03</span>
+          <h4 style="font-size:17px">민감정보를 다룬다</h4>
+          <p style="font-size:14px;line-height:1.55"><span class="nb">의료 데이터 · EU/영국 DPA.</span><br><span class="nb">개인정보·민감정보를</span> <b style="color:#fff" class="nb">해싱·가명처리</b>한 뒤<br>분석하는 설계가 필요합니다.</p>
+        </div>
+      </div>
+      <div class="concl coral"><div><span class="tag">그래서</span><p>표준 스콥을 그대로 쓰지 않고, <b class="hl-coral">아이센스 조건에 맞게 재배치</b>합니다.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACT 02 · MIXPANEL ============ -->
+<section class="slide chapter ch-what">
+  <div class="ch-bg">02</div>
+  <div class="slide__inner">
+    <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
+    <span class="ch-idx">ACT 02 · Mixpanel</span>
+    <h2 class="ch-title">믿을 수 있는 데이터 위에,<br><span>인사이트를 세웁니다</span></h2>
+    <p class="ch-thesis">Mixpanel은 두 개의 층으로 작동합니다. 온보딩은 이 두 층을 세우는 일이고, Enterprise는 여기에 전담 조직을 붙입니다.</p>
+    <div class="ch-steps"><span>조건</span><span class="on">MIXPANEL</span><span>온보딩</span><span>제안</span></div>
+  </div>
+</section>
+
+<!-- ============ S6 · 기술 스택 ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow teal">MIXPANEL ① · 기술 스택</span>
+    <h2 class="head" style="margin-top:18px;font-size:40px">전체 테크 스택에서 <span class="hl-teal">데이터를 완벽하게</span> 분석하세요</h2>
+    <div style="background:#F7F7FA;border-radius:14px;padding:24px 28px;margin-top:28px">
+      <img src="assets/mixpanel-stack.png" alt="Mixpanel 기술 스택" style="width:100%;display:block">
+    </div>
+    <div class="concl teal" style="margin-top:26px"><div><span class="tag">이번 온보딩의 범위</span><p style="font-size:17px">아이센스 온보딩은 <b class="hl-teal">앱 SDK 기반 수집</b>으로 시작합니다. Warehouse Connector(Mirror Mode)는 <b class="hl-teal">별도 애드온</b>으로, 필요 시점에 논의합니다.</p></div></div>
+  </div>
+</section>
+
+<!-- ============ S7 · Trusted Data / Insight 2층 ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow">MIXPANEL ② · 두 개의 층</span>
+    <h2 class="head" style="margin-top:18px;font-size:40px">온보딩이 세우는 것은 <span class="hl">이 두 층</span>입니다</h2>
+    <div class="oslayers" style="margin-top:34px">
+      <div class="oslayer c">
+        <div><div class="ol-tag">INSIGHT</div><div class="ol-sub">묻고 답을 얻는 층</div></div>
+        <div class="ol-body"><b>Explore &amp; Discover · Diagnose &amp; Act · Monitor &amp; Predict</b><span>인사이트·퍼널·리텐션 / 실험·세션리플레이 / 이상탐지·알림 · <b style="color:var(--coral)">AI Agent · MCP</b></span></div>
+        <span class="ol-badge">온보딩 Phase III</span>
+      </div>
+      <div class="oslayer p">
+        <div><div class="ol-tag">TRUSTED DATA</div><div class="ol-sub">믿을 수 있게 만드는 층</div></div>
+        <div class="ol-body"><b>Govern Data · Data In &amp; Out</b><span>택소노미 · Verified Metrics · ID Management / SDK 구현 · Data QA</span></div>
+        <span class="ol-badge">온보딩 Phase I·II</span>
+      </div>
+    </div>
+    <div class="concl" style="margin-top:30px"><div><span class="tag">순서가 중요합니다</span><p>아래층이 흔들리면 위층의 답을 <b class="hl">믿을 수 없습니다.</b> 그래서 택소노미와 QA가 먼저입니다.</p></div></div>
+  </div>
+</section>
+
+<!-- ============ S8 · Enterprise 지원 = 무상 + 유상 ============ -->
+<section class="slide" style="padding:0">
+  <div class="split">
+    <div class="col-l">
+      <span class="eyebrow teal">MIXPANEL ③ · Enterprise 지원</span>
+      <h2 class="head" style="margin-top:24px">Enterprise는<br><span class="hl-teal">두 개의 지원</span>이<br>함께 갑니다</h2>
+      <p class="sub">계약과 동시에 시작되는 <b style="color:var(--ink)">무상 지원</b>, 그리고 도입을 가속하는 <b style="color:var(--ink)">유상 온보딩</b>.</p>
+      <div class="concl teal" style="margin-top:28px"><div><span class="tag">핵심</span><p style="font-size:17px">전담 조직과 상시 지원은 <b class="hl-teal">이미 계약에 들어 있습니다.</b></p></div></div>
+    </div>
+    <div class="col-r">
+      <div class="grid g2" style="gap:22px;margin-top:0">
+        <div class="card tealic" style="border-top-width:3px">
+          <span class="st-badge">무상 지원</span>
+          <h4 style="font-size:18px">Enterprise 계약에 포함</h4>
+          <ul class="blist teal" style="margin-top:16px;gap:10px">
+            <li style="font-size:13.5px"><b>전담 CSM 조직</b> 배치</li>
+            <li style="font-size:13.5px">기술 · 인사이트 분석 문의</li>
+            <li style="font-size:13.5px">Usage 모니터링 · ROI 관리</li>
+            <li style="font-size:13.5px">기능 업데이트 안내 · 교육</li>
+            <li style="font-size:13.5px">부트캠프 · 웨비나 · 컨퍼런스 <span style="color:var(--muted-2)">참여 기회</span></li>
+          </ul>
+        </div>
+        <div class="card coralic" style="border-top-width:3px">
+          <span class="st-badge">유상 지원</span>
+          <h4 style="font-size:18px">온보딩 프로그램</h4>
+          <ul class="blist coral" style="margin-top:16px;gap:10px">
+            <li style="font-size:13.5px">택소노미 설계 · 리뷰</li>
+            <li style="font-size:13.5px">SDK 구현 가이드 · QA</li>
+            <li style="font-size:13.5px">실데이터 기준 사용자 교육</li>
+            <li style="font-size:13.5px">AI Agent · MCP 셋업</li>
+            <li style="font-size:13.5px"><b>V1 300 / V2 500 / V3 1,000만원</b></li>
+          </ul>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted-2);margin-top:22px;line-height:1.5">※ 무상 지원은 계약 기간 동안 상시 제공되며, 온보딩과 별개로 운영됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S9 · 무상 ① 전담 CSM ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow teal">무상 지원 ① · 전담 조직</span>
+    <h2 class="head" style="margin-top:18px;font-size:40px">그로스해커와 데이터엔지니어로 구성된<br><span class="hl-teal">전담 CSM 팀</span>이 배치됩니다</h2>
+    <div class="grid g3" style="margin-top:38px">
+      <div class="card tealic">
+        <span class="st-badge">상시 대응</span>
+        <h4>기술 · 분석 문의</h4>
+        <p>구현 이슈부터 <span class="nb">인사이트 분석 질의</span>까지, <span class="nb">슬랙 직통 채널</span>로 상시 대응합니다.</p>
+      </div>
+      <div class="card tealic">
+        <span class="st-badge">모니터링</span>
+        <h4>Usage 모니터링</h4>
+        <p>이벤트 볼륨과 활용도를 추적해, 도입이 정체되면 먼저 찾아갑니다.</p>
+      </div>
+      <div class="card tealic">
+        <span class="st-badge">정기</span>
+        <h4>ROI 디스커버리</h4>
+        <p><span class="nb">반기 · 연간 단위로</span> 비즈니스 성과를 함께 점검하고 <span class="nb">다음 성장 계획</span>을 세웁니다.</p>
+      </div>
+    </div>
+    <div class="concl teal" style="margin-top:32px"><div><span class="tag">차이</span><p>도구를 팔고 끝나는 게 아니라, <b class="hl-teal">믹스패널로 ROI가 성장하도록 관리</b>합니다.</p></div></div>
+  </div>
+</section>
+
+<!-- ============ S10 · 무상 ② 지속 성장 (사진) ============ -->
+<section class="slide" style="padding:0">
+  <div class="split">
+    <div class="col-l">
+      <span class="eyebrow teal">무상 지원 ② · 지속 성장</span>
+      <h2 class="head" style="margin-top:24px">온보딩이 끝나도<br><span class="hl-teal">배울 자리는<br>계속 열립니다</span></h2>
+      <p class="sub">마켓핏랩이 상시 운영하는 교육 프로그램에 <b style="color:var(--ink)">참여 기회</b>를 드립니다.</p>
+      <ul class="blist teal" style="margin-top:28px">
+        <li style="font-size:15px"><b>부트캠프</b> — 신규 기능 업데이트 시</li>
+        <li style="font-size:15px"><b>웨비나 · 세미나</b> — 정기 개최</li>
+        <li style="font-size:15px"><b>그로스콘</b> — 연례 컨퍼런스</li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--muted-2);margin-top:22px;line-height:1.5">※ 프로그램 구성과 참여 방식은 연간 운영 일정에 따라 달라질 수 있습니다.</p>
+    </div>
+    <div class="col-r">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <img src="assets/event-seminar.png" alt="세미나·컨퍼런스 현장" style="width:100%;border-radius:12px;border:1px solid var(--hair)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <img src="assets/edu-class.png" alt="사용자 교육 현장" style="width:100%;border-radius:12px;border:1px solid var(--hair)">
+          <img src="assets/edu-workshop.png" alt="워크샵 현장" style="width:100%;border-radius:12px;border:1px solid var(--hair)">
+        </div>
+      </div>
+      <p style="font-size:12.5px;color:var(--muted-2);margin-top:14px">※ 실제 세미나 · 코스형 사용자 교육 · 워크샵 진행 모습 (5–70명 규모)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACT 03 · 온보딩 ============ -->
+<section class="slide chapter ch-how">
+  <div class="ch-bg">03</div>
+  <div class="slide__inner">
+    <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
+    <span class="ch-idx">ACT 03 · 온보딩</span>
+    <h2 class="ch-title">모든 온보딩은<br><span>같은 다섯 단계</span></h2>
+    <p class="ch-thesis">패키지와 세션 횟수는 달라져도, 단계와 태스크 구성은 동일합니다.</p>
+    <div class="ch-steps"><span>조건</span><span>MIXPANEL</span><span class="on">온보딩</span><span>제안</span></div>
+  </div>
+</section>
+
+<!-- ============ S12 · 표준 프로세스 5단계 ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow">온보딩 ① · 표준 프로세스</span>
+    <h2 class="head" style="margin-top:18px;font-size:40px">온보딩에서 <span class="hl">온고잉</span>까지</h2>
+    <p class="lead" style="margin-top:14px;font-size:17px">도입으로 끝나지 않고, 계약 기간 내내 이어지는 지원으로 넘어갑니다.</p>
+    <div class="flow4" style="grid-template-columns:repeat(5,1fr);gap:22px;margin-top:38px">
+      <div class="fstep">
+        <span class="st-badge">STAGE 01</span>
+        <h4>Kickoff</h4>
+        <ul class="st-check" style="margin-top:16px;gap:11px">
+          <li style="font-size:14px;font-weight:600">컨설턴트 · CSM 배정</li>
+          <li style="font-size:14px;font-weight:600">소통 핫라인 개설 (Slack)</li>
+          <li style="font-size:14px;font-weight:600">KPI Alignment</li>
+        </ul>
+      </div>
+      <div class="fstep t">
+        <span class="st-badge">STAGE 02</span>
+        <h4>Design</h4>
+        <ul class="st-check" style="margin-top:16px;gap:11px">
+          <li style="font-size:14px;font-weight:600">트래킹 플랜 가이드</li>
+          <li style="font-size:14px;font-weight:600">R&amp;R 점검</li>
+          <li style="font-size:14px;font-weight:600">트래킹 플랜 설계</li>
+        </ul>
+      </div>
+      <div class="fstep t">
+        <span class="st-badge">STAGE 03</span>
+        <h4>Build Up</h4>
+        <ul class="st-check" style="margin-top:16px;gap:11px">
+          <li style="font-size:14px;font-weight:600">트래킹 플랜 피드백 반영</li>
+          <li style="font-size:14px;font-weight:600">SDK 셋업 및 구현</li>
+          <li style="font-size:14px;font-weight:600">Data QA</li>
+        </ul>
+      </div>
+      <div class="fstep c">
+        <span class="st-badge">STAGE 04</span>
+        <h4>Go Live</h4>
+        <ul class="st-check" style="margin-top:16px;gap:11px">
+          <li style="font-size:14px;font-weight:600">라이브 배포</li>
+          <li style="font-size:14px;font-weight:600">사용자 교육 (기본 리포트 4종)</li>
+          <li style="font-size:14px;font-weight:600">심화 기술 문의 지원</li>
+        </ul>
+      </div>
+      <div class="fstep c">
+        <span class="st-badge">STAGE 05</span>
+        <h4>Ongoing</h4>
+        <ul class="st-check" style="margin-top:16px;gap:11px">
+          <li style="font-size:14px;font-weight:600">실시간 CS 지원</li>
+          <li style="font-size:14px;font-weight:600">설치 · 기술 문의 지원</li>
+          <li style="font-size:14px;font-weight:600">전용 워크샵 · 세션</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted-2);margin-top:34px">※ 조직 상황에 따라 각 단계의 구성 내용은 협의하에 조정될 수 있습니다.</p>
+  </div>
+</section>
+
+<!-- ============ S13 · 패키지 4종 ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow">온보딩 ② · 패키지</span>
+    <h2 class="head" style="margin-top:18px;font-size:40px">표준 <span class="hl">세 가지</span>, 그리고 <span class="hl-coral">커스텀</span></h2>
+    <div class="vcards" style="grid-template-columns:repeat(4,1fr);gap:15px;margin-top:26px">
+      <div class="vcard p" style="padding:22px 18px">
+        <span class="v-ver">STARTER V1 · 2개월</span>
+        <div class="v-name" style="font-size:21px">300만원</div>
+        <div class="v-sub" style="font-size:13px">스타트업 · 온라인</div>
+        <div class="v-line" style="margin:14px 0"></div>
+        <ul class="blist" style="gap:9px">
+          <li style="font-size:12.5px;padding-left:22px">사용자 교육 2회</li>
+          <li style="font-size:12.5px;padding-left:22px">심화 기술 지원 연 1회</li>
+          <li style="font-size:12.5px;padding-left:22px">일반 CS 상시</li>
+        </ul>
+      </div>
+      <div class="vcard p" style="padding:22px 18px">
+        <span class="v-ver">STARTER V2 · 2.5개월</span>
+        <div class="v-name" style="font-size:21px">500만원</div>
+        <div class="v-sub" style="font-size:13px">스타트업 · 오프라인 가능</div>
+        <div class="v-line" style="margin:14px 0"></div>
+        <ul class="blist" style="gap:9px">
+          <li style="font-size:12.5px;padding-left:22px"><b>택소노미 분석 · 진단</b></li>
+          <li style="font-size:12.5px;padding-left:22px">사용자 교육 2회</li>
+          <li style="font-size:12.5px;padding-left:22px">심화 기술 지원 연 2회</li>
+        </ul>
+      </div>
+      <div class="vcard p" style="padding:22px 18px">
+        <span class="v-ver">STARTER V3 · 3개월</span>
+        <div class="v-name" style="font-size:21px">1,000만원</div>
+        <div class="v-sub" style="font-size:13px">엔터프라이즈</div>
+        <div class="v-line" style="margin:14px 0"></div>
+        <ul class="blist" style="gap:9px">
+          <li style="font-size:12.5px;padding-left:22px"><b>트래킹 플랜 분석·설계·진단</b></li>
+          <li style="font-size:12.5px;padding-left:22px">코스형 교육 3회 · SDK 가이드</li>
+          <li style="font-size:12.5px;padding-left:22px">기술 문의 연 4회</li>
+        </ul>
+      </div>
+      <div class="vcard c" style="padding:22px 18px;border-color:rgba(255,138,107,.4);background:linear-gradient(165deg,rgba(255,138,107,.14),rgba(255,138,107,.03));box-shadow:0 16px 44px rgba(0,0,0,.45)">
+        <span class="vbadge" style="background:rgba(255,138,107,.2);color:var(--coral)">추천</span>
+        <span class="v-ver">CUSTOM · V3 <b style="color:var(--coral)">+1</b></span>
+        <div class="v-name" style="font-size:21px">1,300만원</div>
+        <div class="v-sub" style="font-size:13px">아이센스 · 앱 2개</div>
+        <div class="v-line" style="margin:14px 0"></div>
+        <ul class="blist coral" style="gap:9px">
+          <li style="font-size:12.5px;padding-left:22px"><b>앱 2곳 도입</b> 가이드 · QA</li>
+          <li style="font-size:12.5px;padding-left:22px"><b>글로벌 확장</b> 세팅 구조</li>
+          <li style="font-size:12.5px;padding-left:22px"><b>AI Agent · MCP</b> 셋업</li>
+        </ul>
+      </div>
+    </div>
+    <div class="concl coral" style="margin-top:26px"><div><span class="tag">아이센스</span><p>엔터프라이즈이므로 V3가 출발점입니다. 여기에 <b class="hl-coral">조건 셋을 반영한 커스텀</b>으로 제안드립니다.</p></div></div>
+  </div>
+</section>
+
+<!-- ============ ACT 04 · 제안 ============ -->
+<section class="slide chapter ch-offer">
+  <div class="ch-bg">04</div>
+  <div class="slide__inner">
+    <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
+    <span class="ch-idx">ACT 04 · 제안</span>
+    <h2 class="ch-title">아이센스<br><span>커스텀 패키지</span></h2>
+    <p class="ch-thesis">V3 위에 조건 셋을 얹은 구성. 세션이 아니라 산출물로 끝납니다.</p>
+    <div class="ch-steps"><span>조건</span><span>MIXPANEL</span><span>온보딩</span><span class="on">제안</span></div>
+  </div>
+</section>
+
+<!-- ============ S15 · 커스텀 3 PHASES ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow coral">제안 ① · 구조</span>
+    <h2 class="head" style="margin-top:18px;font-size:40px">단계마다 <span class="hl-coral">남는 것</span>이 있습니다</h2>
+    <div class="grid g3">
+      <div class="card">
+        <span class="st-badge">PHASE I · 1h + 2h</span>
+        <h4>플래닝 <span style="color:var(--muted);font-weight:600;font-size:14px">Planning</span></h4>
+        <p>손실 없이 넘어오기</p>
+        <ul class="blist" style="margin-top:20px">
+          <li style="font-size:14.5px">킥오프 · 온보딩 로드맵 수립</li>
+          <li style="font-size:14.5px"><b>신규 앱</b> — 기존 택소노미 리뷰 · 정합성 진단</li>
+          <li style="font-size:14.5px"><b>기존 앱</b> — MVP 택소노미 우선순위 설계안 리뷰</li>
+        </ul>
+      </div>
+      <div class="card tealic">
+        <span class="st-badge">PHASE II · 3h</span>
+        <h4>구현 <span style="color:var(--muted);font-weight:600;font-size:14px">Implementation</span></h4>
+        <p>처음부터 맞게 심기</p>
+        <ul class="blist teal" style="margin-top:20px">
+          <li style="font-size:14.5px">SDK 구현 가이드 — 개발자 테크니컬 가이드</li>
+          <li style="font-size:14.5px">QA 가이드 + QA 지원 — 수집 무결성 확인·교정</li>
+          <li style="font-size:14.5px">구현 중 이슈 <b>실시간 대응</b> (슬랙)</li>
+        </ul>
+      </div>
+      <div class="card coralic">
+        <span class="st-badge">PHASE III · 8h</span>
+        <h4>AI 활성화 <span style="color:var(--muted);font-weight:600;font-size:14px">Enablement</span></h4>
+        <p>묻는 조직으로</p>
+        <ul class="blist coral" style="margin-top:20px">
+          <li style="font-size:14.5px">핵심 리포트 활용 — 인사이트·퍼널·플로우·리텐션</li>
+          <li style="font-size:14.5px">조직 분석 질문 도출 · <b>BQ 리포트</b> 작성<br><span style="font-size:12.5px;color:var(--muted-2)">BQ = Business Question, 부서별 비즈니스 질문</span></li>
+          <li style="font-size:14.5px"><b>AI Agent · MCP 셋업</b> — 자동화·알림·역할별 활용</li>
+        </ul>
+      </div>
+    </div>
+    <div class="concl coral" style="margin-top:30px"><div><span class="tag">선긋기</span><p>온보딩은 <b class="hl-coral">가이드</b>입니다. 직접적인 설계·분석·구축 <b class="hl-coral">대행은 포함되지 않습니다.</b></p></div></div>
+  </div>
+</section>
+
+<!-- ============ S16 · 산출물 8종 ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner">
+    <span class="eyebrow coral">제안 ② · 산출물</span>
+    <h2 class="head" style="margin-top:18px;font-size:40px">온보딩이 끝나면 세션 기록이 아니라,<br><span class="hl-coral">산출물 8종</span>이 남습니다</h2>
+    <div class="deliv">
+      <div class="dcol p">
+        <div class="d-head">I · 플래닝</div>
+        <ul>
+          <li><b style="color:#fff">택소노미 정합성 진단 리포트</b><br>신규 앱 — 외주 설계가 실제로 도는지 검증</li>
+          <li><b style="color:#fff">MVP 택소노미 우선순위 설계안</b><br>기존 앱 — 촉박한 일정에서 뭘 먼저 심을지</li>
+        </ul>
+      </div>
+      <div class="dcol t">
+        <div class="d-head">II · 구현</div>
+        <ul>
+          <li><b style="color:#fff">SDK 구현 가이드</b> (앱별)<br>개발팀이 들고 바로 작업</li>
+          <li><b style="color:#fff">QA 체크리스트 + 검증 결과</b><br>데이터를 믿을 수 있는 근거</li>
+        </ul>
+      </div>
+      <div class="dcol c">
+        <div class="d-head">III · AI 활성화</div>
+        <ul>
+          <li><b style="color:#fff">아이센스 BQ 세트</b><br>부서별 비즈니스 질문(Business Question) → 리포트</li>
+          <li><b style="color:#fff">핵심 리포트 템플릿</b> (실데이터 4종)</li>
+          <li><b style="color:#fff">AI Agent 컨텍스트 셋업</b><br>물으면 답이 나오는 상태</li>
+          <li><b style="color:#fff">MCP 연결 가이드</b><br>역할별 — PM·기획·분석·개발</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S17 · 앱별 경로 ============ -->
+<section class="slide" style="padding:0">
+  <div class="split">
+    <div class="col-l">
+      <span class="eyebrow coral">제안 ③ · 앱별 지원</span>
+      <h2 class="head" style="margin-top:24px">두 앱은<br><span class="hl-coral">다른 길</span>로 갑니다</h2>
+      <p class="sub">같은 프로그램 안에서, 앱의 상태에 따라 세션을 재배치합니다.</p>
+      <div class="concl teal" style="margin-top:28px"><div><span class="tag">재배치</span><p style="font-size:16px">신규 설계 세션에서 아낀 시간을 <b class="hl-teal">구현 +1h · QA +1h</b>로 돌립니다.</p></div></div>
+    </div>
+    <div class="col-r">
+      <div class="grid g2" style="gap:22px;margin-top:0">
+        <div class="card">
+          <span class="st-badge">신규 앱</span>
+          <h4 style="font-size:17px">이식 · 정합화</h4>
+          <p style="font-size:14px;line-height:1.55">외주 택소노미가 이미 있습니다.<br>새로 설계하지 않고 <b style="color:#fff">믹스패널에서 실제로 도는지</b> 검증합니다.</p>
+        </div>
+        <div class="card tealic">
+          <span class="st-badge">기존 운영 앱</span>
+          <h4 style="font-size:17px">MVP 우선 설계 → 구현</h4>
+          <p style="font-size:14px;line-height:1.55">설계가 없고 일정이 촉박합니다.<br><b style="color:#fff">뭘 먼저 심을지</b>부터 정하고 코드 삽입까지 가이드합니다.</p>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted-2);margin-top:26px;line-height:1.5">※ 기존 앱의 택소노미 <b style="color:var(--muted)">신규 설계 대행</b>이 필요하면 온보딩 밖 별도 컨설팅 건으로 제안드립니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S18 · 제안 범위 + 비용 ============ -->
+<section class="slide" style="padding:0">
+  <div class="split">
+    <div class="col-l">
+      <span class="eyebrow coral">제안 ④ · 범위와 비용</span>
+      <h2 class="head" style="margin-top:24px">V3 위에 얹는<br><span class="hl-coral">세 가지 확장</span></h2>
+      <ul class="blist coral" style="margin-top:30px">
+        <li style="font-size:16px"><b>앱 2곳 도입</b><br><span style="font-size:14px;color:var(--muted)">신규·기존 각각 도입 가이드와 QA</span></li>
+        <li style="font-size:16px"><b>글로벌 확장 가능한 세팅 구조</b><br><span style="font-size:14px;color:var(--muted)">국내 + EU/영국을 함께 보는 택소노미·프로퍼티 설계</span></li>
+        <li style="font-size:16px"><b>AI Agent · MCP 셋업</b><br><span style="font-size:14px;color:var(--muted)">묻는 조직으로 가는 마지막 조각</span></li>
+      </ul>
+    </div>
+    <div class="col-r">
+      <h3 class="head" style="font-size:22px">구성과 비용</h3>
+      <table class="ctable" style="margin-top:20px">
+        <tbody>
+          <tr><th>Starter V3 기본</th><td style="text-align:right;color:var(--ink-dim);font-weight:700">1,000만원</td></tr>
+          <tr><th>사용자 교육 2회 추가</th><td style="text-align:right;color:var(--ink-dim);font-weight:700">300만원</td></tr>
+          <tr><th>앱 2곳 도입 가이드 · QA · 기술 지원</th><td style="text-align:right;color:var(--ink-dim);font-weight:700">200만원</td></tr>
+          <tr><th style="color:var(--muted-2)">정가</th><td style="text-align:right;color:var(--muted-2);font-weight:700">1,500만원</td></tr>
+          <tr><th style="color:#fff">아이센스 제안가</th><td style="text-align:right;color:#fff;font-weight:800;font-size:19px">1,300만원</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13.5px;color:var(--muted);margin-top:14px">VAT 별도 · 앱 2개 기준</p>
+      <div class="concl teal" style="margin-top:22px"><div><span class="tag">그리고</span><p style="font-size:16px"><span class="nb">전담 CSM</span>과 <span class="nb">상시 기술 지원</span>은 <b class="hl-teal">Enterprise 계약에 포함</b>됩니다.</p></div></div>
+      <p style="font-size:13px;color:var(--muted-2);margin-top:18px;line-height:1.5">※ 기존 앱 택소노미 신규 설계는 본 단가에 포함되지 않으며, 필요 시 별도 컨설팅 계약이 필요합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S19 · CLOSE ============ -->
+<section class="slide" style="padding:0">
+  <div class="slide__inner close">
+    <div class="aurora"></div>
+    <img src="assets/mfl-logo.png" class="close-logo" alt="Market Fit Lab">
+    <h2 class="disp">아이센스가 직접<br><span class="g-sweep">묻는 조직</span>이 되도록</h2>
+    <p class="en">We Grow Together</p>
+    <div class="contact">
+      solutions@mfitlab.com · www.mfitlab.com
+    </div>
+    <div class="close-partner"><span class="pw-label">POWERED BY</span><img src="assets/mixpanel-wordmark.png" alt="Mixpanel"></div>
+    <div class="foot">© 2026 Market Fit Lab Inc.</div>
+  </div>
+</section>
+
+</div>
+<div class="navhint" id="hint"><kbd>↑</kbd><kbd>↓</kbd> 슬라이드 이동 · <kbd>F</kbd> 전체화면</div>
+
+<script>
+(function(){
+  var deck=document.getElementById('deck'),prog=document.getElementById('progress'),hint=document.getElementById('hint'),
+      slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  function pad(n){return n<10?'0'+n:''+n}
+  var total=slides.length;
+  slides.forEach(function(s,i){
+    var old=s.querySelector('.snum');if(old)old.remove();
+    var stage=s.querySelector('.split')||s.querySelector('.slide__inner')||s;
+    var n=document.createElement('span');n.className='snum';
+    n.textContent=pad(i+1)+' / '+pad(total);
+    stage.appendChild(n);
+  });
+  function fit(){var s=Math.min(window.innerWidth/1280,window.innerHeight/720);document.documentElement.style.setProperty('--scale',s);}
+  fit();window.addEventListener('resize',fit,{passive:true});
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
+  deck.scrollTop=0;
+  window.addEventListener('load',function(){deck.scrollTop=0;slides[0]&&slides[0].classList.add('in');});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting)e.target.classList.add('in');else e.target.classList.remove('in');
+    })},{threshold:.45});
+    slides.forEach(function(s){io.observe(s)});
+  } else { slides.forEach(function(s){s.classList.add('in')}); }
+  if(slides[0])slides[0].classList.add('in');
+  function cur(){return Math.max(0,Math.min(slides.length-1,Math.round(deck.scrollTop/window.innerHeight)))}
+  function go(i){i=Math.max(0,Math.min(slides.length-1,i));slides[i].scrollIntoView({behavior:'smooth'})}
+  function update(){prog.style.width=(deck.scrollTop/(deck.scrollHeight-deck.clientHeight)*100)+'%'}
+  deck.addEventListener('scroll',update,{passive:true});update();
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'||e.key==='PageDown'||e.key===' '){e.preventDefault();go(cur()+1)}
+    else if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();go(cur()-1)}
+    else if(e.key==='Home'){e.preventDefault();go(0)}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1)}
+    else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen()}
+  });
+  var t;deck.addEventListener('scroll',function(){hint.classList.add('hide');clearTimeout(t);t=setTimeout(function(){hint.classList.remove('hide')},1600)},{passive:true});
+  setTimeout(function(){hint.classList.add('hide')},4000);
+})();
+</script>
+</body>
+</html>
