@@ -424,6 +424,34 @@ body,.deck{background:#0B0817}
 .flow4 .st-check li{color:var(--ink-dim)}
 /* 한국어 조판 · 의미 단위가 갈리지 않도록 */
 .nb{white-space:nowrap}
+/* Mixpanel 기술 스택 · 벡터 재현 */
+.stacksvg text{font-family:var(--sans)}
+.stacksvg .gl{font:700 15px/1 'Inter',sans-serif;fill:var(--ink-dim);letter-spacing:.01em}
+.stacksvg .gl.accent{fill:var(--purple)}
+.stacksvg .brk{fill:none;stroke:rgba(255,255,255,.22);stroke-width:1.5}
+.stacksvg .brk.accent{stroke:rgba(184,166,255,.5)}
+.stacksvg .src{font:600 14px/1 var(--sans);fill:var(--ink-dim)}
+.stacksvg .wire{fill:none;stroke:var(--muted-2);stroke-width:1.5}
+.stacksvg .hex{fill:none;stroke:rgba(184,166,255,.32);stroke-width:1.5}
+.stacksvg .hex.t{stroke:rgba(79,216,196,.32)}
+.stacksvg .hexf{fill:var(--panel);stroke:rgba(184,166,255,.45);stroke-width:1.5}
+.stacksvg .hexf.t{fill:var(--panel);stroke:rgba(79,216,196,.45)}
+.stacksvg .hx{font:600 15px/1 var(--sans);fill:var(--muted)}
+.stacksvg .hx.b{font-weight:800;font-size:17px;fill:#fff}
+.stacksvg .hx.b.t{fill:var(--teal)}
+.stacksvg .mp{font:700 26px/1 'Inter',sans-serif;fill:#fff;letter-spacing:-.02em}
+/* 패키지 비교표 */
+.ctable.pkg thead th{padding:14px 16px;text-align:center;line-height:1.3}
+.ctable.pkg thead th:first-child{background:var(--band)}
+.ctable.pkg thead th .pr{display:block;font:800 17px/1 'Inter',sans-serif;color:#fff;margin-top:6px}
+.ctable.pkg tbody th{white-space:nowrap;font-size:12px;letter-spacing:.04em}
+.ctable.pkg tbody td{text-align:center;padding:11px 14px;font-size:14px}
+.ctable.pkg tbody th{padding:11px 16px}
+.ctable.pkg tbody td.x{color:var(--muted-2)}
+.ctable.pkg tbody td.on{background:rgba(255,138,107,.10);color:#fff}
+.ctable.pkg tbody td.on b{color:var(--coral)}
+.ctable.pkg tbody tr:nth-child(even) td.on{background:rgba(255,138,107,.13)}
+.ctable.pkg thead th:last-child{background:linear-gradient(180deg,rgba(255,138,107,.22),var(--band))}
 .flow4 p{font-size:14px;line-height:1.55;color:var(--muted)}
 /* AI feature grid (S9) — what it does · who uses */
 .featgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 28px;margin-top:32px}
@@ -521,22 +549,10 @@ body,.deck{background:#0B0817}
   </div>
 </section>
 
-<!-- ============ ACT 01 · 조건 ============ -->
-<section class="slide chapter ch-why">
-  <div class="ch-bg">01</div>
-  <div class="slide__inner">
-    <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
-    <span class="ch-idx">ACT 01 · 조건</span>
-    <h2 class="ch-title">표준 온보딩으로는<br><span>안 되는 이유</span></h2>
-    <p class="ch-thesis">아이센스에는 표준 프로그램이 전제하지 않는 조건이 셋 있습니다. 제안의 모든 것이 여기서 나옵니다.</p>
-    <div class="ch-steps"><span class="on">조건</span><span>MIXPANEL</span><span>온보딩</span><span>제안</span></div>
-  </div>
-</section>
-
-<!-- ============ S3 · 선언 ============ -->
+<!-- ============ S2 · 선언 ============ -->
 <section class="slide statement" style="padding:0">
   <div class="slide__inner">
-    <span class="eyebrow">조건 ① · 온보딩의 정의</span>
+    <span class="eyebrow">INTRO · 온보딩의 정의</span>
     <h2 class="mega" style="margin-top:24px">온보딩은 교육이 아니라,<br><span class="accent">셋업입니다.</span></h2>
     <p class="mega-sub">교육은 <b>끝나면 기억만 남습니다.</b> 우리는 아이센스의 실제 데이터 위에 <b>택소노미·구현 가이드·QA·AI 셋업</b>을 얹어, 온보딩이 끝난 뒤에도 <b>계속 쓰이는 물건</b>을 남깁니다.</p>
   </div>
@@ -546,7 +562,7 @@ body,.deck{background:#0B0817}
 <section class="slide" style="padding:0">
   <div class="split">
     <div class="col-l">
-      <span class="eyebrow">조건 ②</span>
+      <span class="eyebrow">INTRO · 아이센스의 조건</span>
       <h2 class="head" style="margin-top:24px">아이센스에만<br>있는 <span class="hl">세 가지 조건</span></h2>
       <p class="sub">표준 온보딩은 <b style="color:var(--ink)">앱 1개, 백지 상태, 일반 데이터</b>를 전제합니다. 아이센스는 셋 다 다릅니다.</p>
     </div>
@@ -575,13 +591,13 @@ body,.deck{background:#0B0817}
 
 <!-- ============ ACT 02 · MIXPANEL ============ -->
 <section class="slide chapter ch-what">
-  <div class="ch-bg">02</div>
+  <div class="ch-bg">01</div>
   <div class="slide__inner">
     <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
-    <span class="ch-idx">ACT 02 · Mixpanel</span>
+    <span class="ch-idx">ACT 01 · Mixpanel</span>
     <h2 class="ch-title">믿을 수 있는 데이터 위에,<br><span>인사이트를 세웁니다</span></h2>
     <p class="ch-thesis">Mixpanel은 두 개의 층으로 작동합니다. 온보딩은 이 두 층을 세우는 일이고, Enterprise는 여기에 전담 조직을 붙입니다.</p>
-    <div class="ch-steps"><span>조건</span><span class="on">MIXPANEL</span><span>온보딩</span><span>제안</span></div>
+    <div class="ch-steps"><span class="on">MIXPANEL</span><span>온보딩</span><span>제안</span></div>
   </div>
 </section>
 
@@ -590,9 +606,68 @@ body,.deck{background:#0B0817}
   <div class="slide__inner">
     <span class="eyebrow teal">MIXPANEL ① · 기술 스택</span>
     <h2 class="head" style="margin-top:18px;font-size:40px">전체 테크 스택에서 <span class="hl-teal">데이터를 완벽하게</span> 분석하세요</h2>
-    <div style="background:#F7F7FA;border-radius:14px;padding:24px 28px;margin-top:28px">
-      <img src="assets/mixpanel-stack.png" alt="Mixpanel 기술 스택" style="width:100%;display:block">
-    </div>
+    <svg class="stacksvg" viewBox="0 0 1180 390" style="width:100%;height:auto;display:block;margin-top:30px;overflow:visible">
+      <defs>
+        <linearGradient id="mpg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8E6BFF"/><stop offset="1" stop-color="#6B45FF"/>
+        </linearGradient>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0 0 L9 4.5 L0 9 z" fill="#8B85A8"/>
+        </marker>
+      </defs>
+
+      <!-- group labels + brackets -->
+      <g class="grp">
+        <text x="145" y="22" text-anchor="middle" class="gl">Sources</text>
+        <path d="M35 36 v10 M35 46 H255 M255 46 v-10" class="brk"/>
+
+        <text x="435" y="22" text-anchor="middle" class="gl">Data Warehouse</text>
+        <path d="M330 36 v10 M330 46 H540 M540 46 v-10" class="brk"/>
+
+        <text x="720" y="22" text-anchor="middle" class="gl accent">Warehouse Connector</text>
+        <path d="M615 36 v10 M615 46 H825 M825 46 v-10" class="brk accent"/>
+
+        <text x="1030" y="22" text-anchor="middle" class="gl accent">Self-Serve Analytics</text>
+        <path d="M905 36 v10 M905 46 H1155 M1155 46 v-10" class="brk accent"/>
+      </g>
+
+      <!-- Sources -->
+      <rect x="35" y="70" width="220" height="250" rx="18" fill="#120C29" stroke="rgba(255,255,255,.10)"/>
+      <text x="145" y="120" text-anchor="middle" class="src">App Database</text>
+      <text x="145" y="160" text-anchor="middle" class="src">Salesforce</text>
+      <text x="145" y="200" text-anchor="middle" class="src">Zendesk</text>
+      <text x="145" y="240" text-anchor="middle" class="src">Stripe</text>
+      <text x="145" y="280" text-anchor="middle" class="src">HubSpot · NetSuite</text>
+
+      <!-- connector line -->
+      <path d="M255 195 H330" class="wire"/>
+
+      <!-- Data Warehouse hexes -->
+      <path d="M305 195 L370 75 L500 75 L565 195 L500 315 L370 315 Z" class="hex"/>
+      <path d="M330 195 L387 90 L483 90 L540 195 L483 300 L387 300 Z" class="hex"/>
+      <path d="M355 195 L404 105 L466 105 L515 195 L466 285 L404 285 Z" class="hexf"/>
+      <text x="435" y="175" text-anchor="middle" class="hx">Snowflake</text>
+      <text x="435" y="205" text-anchor="middle" class="hx b">dbt</text>
+      <text x="435" y="235" text-anchor="middle" class="hx">BigQuery</text>
+
+      <!-- Warehouse Connector hexes -->
+      <path d="M590 195 L655 75 L785 75 L850 195 L785 315 L655 315 Z" class="hex t"/>
+      <path d="M615 195 L672 90 L768 90 L825 195 L768 300 L672 300 Z" class="hex t"/>
+      <path d="M640 195 L689 105 L751 105 L800 195 L751 285 L689 285 Z" class="hexf t"/>
+      <text x="720" y="202" text-anchor="middle" class="hx b t">Mirror Mode</text>
+
+      <path d="M850 195 H895" class="wire" marker-end="url(#ar)"/>
+
+      <!-- Mixpanel -->
+      <rect x="920" y="70" width="220" height="250" rx="20" fill="url(#mpg)"/>
+      <g transform="translate(1030,170)">
+        <rect x="-46" y="-40" width="20" height="66" rx="5" fill="#fff" opacity=".95"/>
+        <rect x="-19" y="-16" width="20" height="42" rx="5" fill="#fff" opacity=".8"/>
+        <rect x="8" y="0" width="20" height="26" rx="5" fill="#fff" opacity=".65"/>
+        <rect x="35" y="12" width="20" height="14" rx="5" fill="#fff" opacity=".5"/>
+      </g>
+      <text x="1030" y="255" text-anchor="middle" class="mp">mixpanel</text>
+    </svg>
     <p class="lead" style="margin-top:24px;font-size:16px;color:var(--muted)">데이터 원천부터 웨어하우스, 셀프서브 분석까지 — 성장하는 조직이 지향할 만한 <b style="color:var(--ink-dim)">표준 스택 구성</b>입니다.</p>
   </div>
 </section>
@@ -712,13 +787,13 @@ body,.deck{background:#0B0817}
 
 <!-- ============ ACT 03 · 온보딩 ============ -->
 <section class="slide chapter ch-how">
-  <div class="ch-bg">03</div>
+  <div class="ch-bg">02</div>
   <div class="slide__inner">
     <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
-    <span class="ch-idx">ACT 03 · 온보딩</span>
+    <span class="ch-idx">ACT 02 · 온보딩</span>
     <h2 class="ch-title">모든 온보딩은<br><span>같은 다섯 단계</span></h2>
     <p class="ch-thesis">패키지와 세션 횟수는 달라져도, 단계와 태스크 구성은 동일합니다.</p>
-    <div class="ch-steps"><span>조건</span><span>MIXPANEL</span><span class="on">온보딩</span><span>제안</span></div>
+    <div class="ch-steps"><span>MIXPANEL</span><span class="on">온보딩</span><span>제안</span></div>
   </div>
 </section>
 
@@ -779,71 +854,73 @@ body,.deck{background:#0B0817}
   </div>
 </section>
 
-<!-- ============ S13 · 패키지 4종 ============ -->
+<!-- ============ S13 · 패키지 비교표 ============ -->
 <section class="slide" style="padding:0">
   <div class="slide__inner">
-    <span class="eyebrow">온보딩 ② · 패키지</span>
-    <h2 class="head" style="margin-top:18px;font-size:40px">표준 <span class="hl">세 가지</span>, 그리고 <span class="hl-coral">커스텀</span></h2>
-    <div class="vcards" style="grid-template-columns:repeat(4,1fr);gap:15px;margin-top:26px">
-      <div class="vcard p" style="padding:22px 18px">
-        <span class="v-ver">STARTER V1 · 2개월</span>
-        <div class="v-name" style="font-size:21px">300만원</div>
-        <div class="v-sub" style="font-size:13px">스타트업 · 온라인</div>
-        <div class="v-line" style="margin:14px 0"></div>
-        <ul class="blist" style="gap:9px">
-          <li style="font-size:12.5px;padding-left:22px">사용자 교육 2회</li>
-          <li style="font-size:12.5px;padding-left:22px">심화 기술 지원 연 1회</li>
-          <li style="font-size:12.5px;padding-left:22px">일반 CS 상시</li>
-        </ul>
-      </div>
-      <div class="vcard p" style="padding:22px 18px">
-        <span class="v-ver">STARTER V2 · 2.5개월</span>
-        <div class="v-name" style="font-size:21px">500만원</div>
-        <div class="v-sub" style="font-size:13px">스타트업 · 오프라인 가능</div>
-        <div class="v-line" style="margin:14px 0"></div>
-        <ul class="blist" style="gap:9px">
-          <li style="font-size:12.5px;padding-left:22px"><b>택소노미 분석 · 진단</b></li>
-          <li style="font-size:12.5px;padding-left:22px">사용자 교육 2회</li>
-          <li style="font-size:12.5px;padding-left:22px">심화 기술 지원 연 2회</li>
-        </ul>
-      </div>
-      <div class="vcard p" style="padding:22px 18px">
-        <span class="v-ver">STARTER V3 · 3개월</span>
-        <div class="v-name" style="font-size:21px">1,000만원</div>
-        <div class="v-sub" style="font-size:13px">엔터프라이즈</div>
-        <div class="v-line" style="margin:14px 0"></div>
-        <ul class="blist" style="gap:9px">
-          <li style="font-size:12.5px;padding-left:22px"><b>트래킹 플랜 분석·설계·진단</b></li>
-          <li style="font-size:12.5px;padding-left:22px">코스형 교육 3회 · SDK 가이드</li>
-          <li style="font-size:12.5px;padding-left:22px">기술 문의 연 4회</li>
-        </ul>
-      </div>
-      <div class="vcard c" style="padding:22px 18px;border-color:rgba(255,138,107,.4);background:linear-gradient(165deg,rgba(255,138,107,.14),rgba(255,138,107,.03));box-shadow:0 16px 44px rgba(0,0,0,.45)">
-        <span class="vbadge" style="background:rgba(255,138,107,.2);color:var(--coral)">추천</span>
-        <span class="v-ver">CUSTOM · V3 <b style="color:var(--coral)">+1</b></span>
-        <div class="v-name" style="font-size:21px">1,300만원</div>
-        <div class="v-sub" style="font-size:13px">아이센스 · 앱 2개</div>
-        <div class="v-line" style="margin:14px 0"></div>
-        <ul class="blist coral" style="gap:9px">
-          <li style="font-size:12.5px;padding-left:22px"><b>앱 2곳 도입</b> 가이드 · QA</li>
-          <li style="font-size:12.5px;padding-left:22px"><b>글로벌 확장</b> 세팅 구조</li>
-          <li style="font-size:12.5px;padding-left:22px"><b>AI Agent · MCP</b> 셋업</li>
-        </ul>
-      </div>
-    </div>
-    <div class="concl coral" style="margin-top:26px"><div><span class="tag">아이센스</span><p>엔터프라이즈이므로 V3가 출발점입니다. 여기에 <b class="hl-coral">조건 셋을 반영한 커스텀</b>으로 제안드립니다.</p></div></div>
+    <span class="eyebrow">온보딩 ② · 패키지 비교</span>
+    <h2 class="head" style="margin-top:16px;font-size:38px">위로 갈수록 <span class="hl">항목이 얹힙니다</span></h2>
+    <table class="ctable pkg" style="margin-top:22px">
+      <thead>
+        <tr>
+          <th style="width:20%"></th>
+          <th class="h-p">Starter V1<span class="pr">300만원</span></th>
+          <th class="h-p">Starter V2<span class="pr">500만원</span></th>
+          <th class="h-t">Starter V3<span class="pr">1,000만원</span></th>
+          <th class="h-c">Custom<span class="pr">1,300만원</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>기간</th>
+          <td>약 2개월</td><td>약 2.5개월</td><td>약 3개월</td><td>약 3개월</td>
+        </tr>
+        <tr>
+          <th>대상</th>
+          <td>스타트업</td><td>스타트업</td><td>엔터프라이즈</td><td class="on">엔터프라이즈 · <b>앱 2곳</b></td>
+        </tr>
+        <tr>
+          <th>택소노미</th>
+          <td class="x">—</td><td>분석 · 진단</td><td>분석 · 설계 · 진단</td><td class="on">분석 · 설계 · 진단 <b>(앱별)</b></td>
+        </tr>
+        <tr>
+          <th>SDK 도입 가이드</th>
+          <td class="x">—</td><td class="x">—</td><td>1회</td><td class="on"><b>앱 2곳 각각</b></td>
+        </tr>
+        <tr>
+          <th>Data QA 지원</th>
+          <td class="x">—</td><td class="x">—</td><td class="x">—</td><td class="on"><b>앱 2곳 각각</b></td>
+        </tr>
+        <tr>
+          <th>사용자 교육</th>
+          <td>2회 (4h)</td><td>2회 (4h)</td><td>코스형 3회 (6h)</td><td class="on">코스형 <b>5회 (10h)</b></td>
+        </tr>
+        <tr>
+          <th>AI Agent · MCP 셋업</th>
+          <td class="x">—</td><td class="x">—</td><td class="x">—</td><td class="on"><b>포함</b></td>
+        </tr>
+        <tr>
+          <th>심화 기술 지원</th>
+          <td>연 1회</td><td>연 2회</td><td>연 4회</td><td>연 4회</td>
+        </tr>
+        <tr>
+          <th>일반 CS</th>
+          <td>상시 무상</td><td>상시 무상</td><td>상시 무상</td><td>상시 무상</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:var(--muted-2);margin-top:16px">※ 추가 사용자 교육 1회(2h) 100만원 · 추가 심화 기술 지원 건당 50만원</p>
   </div>
 </section>
 
 <!-- ============ ACT 04 · 제안 ============ -->
 <section class="slide chapter ch-offer">
-  <div class="ch-bg">04</div>
+  <div class="ch-bg">03</div>
   <div class="slide__inner">
     <img src="assets/mfl-logo.png" class="ch-logo" alt="Market Fit Lab">
-    <span class="ch-idx">ACT 04 · 제안</span>
+    <span class="ch-idx">ACT 03 · 제안</span>
     <h2 class="ch-title">아이센스<br><span>커스텀 패키지</span></h2>
     <p class="ch-thesis">V3 위에 조건 셋을 얹은 구성. 세션이 아니라 산출물로 끝납니다.</p>
-    <div class="ch-steps"><span>조건</span><span>MIXPANEL</span><span>온보딩</span><span class="on">제안</span></div>
+    <div class="ch-steps"><span>MIXPANEL</span><span>온보딩</span><span class="on">제안</span></div>
   </div>
 </section>
 
